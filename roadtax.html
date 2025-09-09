@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Renew Roadtax</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<div class="max-w-xl mx-auto p-4">
+<h1 class="text-2xl font-semibold mb-3">Renew Roadtax / Insurans</h1>
+<div class="bg-white rounded-2xl p-5 shadow">
+<select id="vehicle_type" class="border rounded-xl px-3 py-2 w-full mb-2"><option value="car">Kereta</option><option value="motor">Motor</option></select>
+<input id="plate_no" class="border rounded-xl px-3 py-2 w-full mb-2" placeholder="No. Plat (cth: JXX 1234)"/>
+<input id="engine_cc" type="number" class="border rounded-xl px-3 py-2 w-full mb-2" placeholder="Engine CC"/>
+<select id="insurans_existing" class="border rounded-xl px-3 py-2 w-full mb-2"><option>ya</option><option>tidak</option></select>
+<input id="name" class="border rounded-xl px-3 py-2 w-full mb-2" placeholder="Nama"/>
+<input id="phone" class="border rounded-xl px-3 py-2 w-full mb-3" placeholder="Telefon"/>
+<button id="btn" class="bg-indigo-600 text-white rounded-xl px-4 py-2">Hantar Permohonan</button>
+<div id="msg" class="text-sm mt-3"></div>
+</div>
+</div>
+<script>
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec';
+btn.onclick=async()=>{
+const payload={ vehicle_type:vehicle_type.value, plate_no:plate_no.value, engine_cc:engine_cc.value, insurans_existing:insurans_existing.value, name:name.value, phone:phone.value };
+const r=await fetch(WEB_APP_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'add_roadtax',payload})});
+const j=await r.json(); msg.textContent = j.ok? 'Permohonan diterima. Kami akan hubungi anda.' : ('Ralat: '+j.error);
+};
+</script>
+</body>
+</html>
