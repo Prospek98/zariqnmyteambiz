@@ -2,120 +2,125 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>Portal Pelanggan — CarHub Johor</title>
+  <title>Portal Pelanggan • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="./config.js"></script>
-  <style>
-    body{font-family:system-ui,Arial;margin:0;background:#f6f7fb;color:#111}
-    header{background:#0ea5e9;color:#fff;padding:16px 20px}
-    .wrap{max-width:1100px;margin:20px auto;padding:0 16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-    .card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid #eee;font-size:14px}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #E5E7EB}
-    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer}
-    .pill{display:inline-block;background:#eef;color:#036;padding:4px 8px;border-radius:999px;font-size:12px}
-    .muted{color:#6b7280}
-  </style>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./config.js"></script>
 </head>
 <body>
-<header>
-  <div style="font-weight:700" id="brand">CarHub Johor — Portal Pelanggan</div>
-</header>
+  <header class="container">
+    <div class="logo"><span class="logo-dot"></span>Portal Pelanggan</div>
+  </header>
 
-<div class="wrap">
-  <div class="grid">
-    <div class="card" id="summary">
-      <h3 id="c_name">Pelanggan</h3>
-      <div>Baki Rebate: <b id="bal">RM 0</b> <span class="pill" id="expiry">Tamat dalam — hari</span></div>
-      <div class="muted" id="agent"></div>
-    </div>
+  <main class="container grid grid-2">
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Akaun</div>
+        <h2 class="h2" id="custName">Memuat...</h2>
+        <div class="row">
+          <div class="badge">Sale ID: <span id="saleId" class="mono"></span></div>
+          <div class="badge">Baki Rebate: <span id="bal"></span></div>
+          <div class="badge">Had per transaksi: <span id="cap"></span></div>
+        </div>
+        <div class="sep"></div>
+        <div id="expiryBox" class="row"></div>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>Tempah Servis</h3>
-      <label>Brand</label><input id="b_brand" placeholder="Proton">
-      <label>Model</label><input id="b_model" placeholder="X70">
-      <label>Mileage (km)</label><input id="b_mileage" type="number" value="10000">
-      <label>Pickup?</label>
-      <select id="b_pickup"><option value="false">Hantar sendiri</option><option value="true">Pickup (RM100)</option></select>
-      <label>Guna Rebate?</label>
-      <select id="b_use"><option value="true">Ya</option><option value="false">Tidak</option></select>
-      <button class="btn" onclick="createBooking()">Hantar Tempahan</button>
-      <div class="muted" id="b_out" style="margin-top:8px"></div>
-    </div>
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Booking Servis / Test Drive</div>
+        <h2 class="h2">Buat Janji Temu</h2>
+        <div class="grid grid-2">
+          <select id="bk_type" class="select"><option value="service">Servis</option><option value="testdrive">Test Drive</option></select>
+          <input id="bk_brand" class="input" placeholder="Jenama (cth Proton)">
+          <input id="bk_model" class="input" placeholder="Model (cth X70)">
+          <input id="bk_mileage" class="input" placeholder="Mileage km (cth 10,000)">
+          <label class="row"><input id="bk_pickup" type="checkbox"> Perlukan pick-up (RM100)</label>
+          <label class="row"><input id="bk_use_rebate" type="checkbox"> Guna rebate automatik</label>
+          <input id="bk_notes" class="input" placeholder="Nota">
+          <button class="btn" onclick="createBooking()">Hantar Booking</button>
+        </div>
+        <div id="bkResult" class="notice" style="margin-top:8px"></div>
+      </div>
+    </section>
 
-    <div class="card">
-      <h3>Sejarah Rebate</h3>
-      <table id="ledger"><thead><tr><th>Tarikh</th><th>Jenis</th><th>Channel</th><th>Jumlah</th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
+    <section class="card" style="grid-column:1/-1">
+      <div class="card-pad">
+        <div class="kicker">Sejarah Rebate</div>
+        <div id="ledger"></div>
+      </div>
+    </section>
 
-  <div class="card" style="margin-top:16px">
-    <h3>Model Baharu</h3>
-    <div id="upsell" class="grid"></div>
-  </div>
-</div>
+    <section class="card" style="grid-column:1/-1">
+      <div class="card-pad">
+        <div class="kicker">Kereta Baharu</div>
+        <div id="upsell" class="grid grid-3"></div>
+      </div>
+    </section>
+  </main>
 
-<script>
-  document.getElementById('brand').textContent = BRAND_NAME + " — Portal Pelanggan";
+  <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
 
-  const url = new URL(location.href);
-  const token = url.searchParams.get("token") || "";
+  <script>
+    document.getElementById('year').textContent=new Date().getFullYear();
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
 
-  function cardUp(x){
-    return `<div class="card"><div class="pill">${x.brand}</div><h4>${x.model} ${x.variant||""}</h4><div class="muted">${fmtRM(x.otr_price)}</div></div>`;
-  }
+    function fmt(n){ return "RM " + Number(n||0).toLocaleString("ms-MY"); }
 
-  async function loadPortal(){
-    if(!token){ document.body.innerHTML = "<div class='wrap'><div class='card'>Token tidak sah.</div></div>"; return; }
-    const r = await apiGet('portal', { token });
-    if(!r.ok || !r.data){ document.body.innerHTML = "<div class='wrap'><div class='card'>Portal tidak ditemui.</div></div>"; return; }
-    const d = r.data;
-    document.getElementById('c_name').textContent = d.customer_name || "Pelanggan";
-    document.getElementById('bal').textContent = fmtRM(d.balance);
-    const days = (d.days_left??null);
-    document.getElementById('expiry').textContent = (days!==null) ? `Tamat dalam ${days} hari` : '—';
+    function countdown(exp){
+      const dd = Math.max(0, Math.ceil((new Date(exp)-new Date())/(1000*3600*24)));
+      return dd;
+    }
 
-    // Agent
-    const a = d.agent;
-    document.getElementById('agent').innerHTML = a ? 
-      `Ejen anda: <b>${a.name}</b> (${a.location||'-'}) • <a href="https://wa.me/${a.whatsapp}" target="_blank">WhatsApp</a>` :
-      `Hubungi <a href="https://wa.me/${ADMIN_WHATSAPP}">Admin</a>`;
+    function line(o){
+      const sign = (o.type==='redeem'?'-':'+');
+      return `<div class="row" style="justify-content:space-between"><div>${o.created_at || ''} • ${o.type}</div><div class="mono">${sign} ${fmt(o.amount)}</div></div>`;
+    }
 
-    // Ledger
-    const tb = document.querySelector('#ledger tbody');
-    tb.innerHTML = (d.ledger||[]).map(x=>`<tr>
-      <td>${new Date(x.created_at).toLocaleString('ms-MY')}</td>
-      <td>${x.type}</td><td>${x.channel}</td><td>${fmtRM(x.amount)}</td>
-    </tr>`).join('') || `<tr><td colspan="4" class="muted">Tiada transaksi.</td></tr>`;
+    async function init(){
+      if(!token){ document.body.innerHTML='<div class="container">Token tidak sah.</div>'; return; }
+      const r = await apiGet('portal', { token });
+      if(!r.ok || !r.data){ document.body.innerHTML='<div class="container">Portal tidak ditemui.</div>'; return; }
+      const d = r.data;
+      saleId.textContent = d.sale_id;
+      custName.textContent = d.customer_name || 'Pelanggan';
+      bal.textContent = fmt(d.balance);
+      const capAmt = Math.floor((d.rebate_initial||0) * (d.max_pct||0));
+      cap.textContent = fmt(capAmt);
 
-    // Upsell
-    document.getElementById('upsell').innerHTML = (d.listings||[]).map(cardUp).join('');
-  }
+      if(d.rebate_expiry_date){
+        const days = countdown(d.rebate_expiry_date);
+        expiryBox.innerHTML = `<div class="badge">Tamat: ${d.rebate_expiry_date}</div><div class="badge">Baki hari: ${days}</div>`;
+      }else{
+        expiryBox.innerHTML = `<div class="badge">Tiada tarikh tamat ditetapkan</div>`;
+      }
 
-  async function createBooking(){
-    const payload = {
-      sale_id: (await getSaleIdByToken(token)),
-      customer_phone: "", type: "service",
-      brand: val('b_brand'), model: val('b_model'), mileage: +val('b_mileage')||0,
-      use_rebate: (val('b_use')==="true"), pickup: (val('b_pickup')==="true")
-    };
-    const r = await apiPost('create_booking', payload, true); // pelanggan perlu login? Jika tidak, tukar kepada false & sediakan route public. Untuk MVP: true.
-    document.getElementById('b_out').innerHTML = r.ok ? 
-      `Jumlah: ${fmtRM(r.data.total_before_rebate)} • Guna rebate: ${fmtRM(r.data.rebate_used)} • Bayar: <b>${fmtRM(r.data.amount_due)}</b>` :
-      `<span style="color:#b91c1c">${r.error||'Gagal'}</span>`;
-  }
+      // ledger
+      ledger.innerHTML = (d.ledger||[]).map(line).join('') || '<div>Tiada transaksi.</div>';
 
-  async function getSaleIdByToken(t){
-    // cepat: panggil semula portal dan baca sale_id
-    const r = await apiGet('portal', { token: t });
-    return r.ok && r.data ? r.data.sale_id : "";
-  }
-  function val(id){ return document.getElementById(id).value.trim(); }
+      // upsell
+      const ups = (d.listings||[]).slice(0,6).map(x=>{
+        const img=(x.image_urls && x.image_urls.split(',')[0])||'';
+        return `<div class="card">${img?`<img class="listing-img" src="${img}">`:`<div class="listing-img"></div>`}<div class="card-pad"><div class="kicker">${x.brand}</div><div class="h2" style="font-size:18px">${x.model||''}</div><div class="price">${fmt(x.price||0)}</div></div></div>`;
+      }).join('');
+      upsell.innerHTML = ups || '<div class="card card-pad">Kemaskini kereta baharu akan dipaparkan di sini.</div>';
+    }
 
-  loadPortal();
-</script>
+    async function createBooking(){
+      const payload={
+        sale_id: saleId.textContent, customer_phone:'', type: bk_type.value,
+        brand: bk_brand.value, model: bk_model.value, mileage: bk_mileage.value,
+        pickup: bk_pickup.checked, use_rebate: bk_use_rebate.checked, notes: bk_notes.value
+      };
+      // Portal adalah public — booking memerlukan peranan seller/admin. Jadi untuk portal pelanggan,
+      // kita hanya rekod "permintaan" melalui roadtax atau minta agent hubungi.
+      // Pilihan sementara: minta pelanggan WhatsApp admin.
+      bkResult.textContent = 'Terima kasih! Sila WhatsApp kami untuk sahkan slot. (Integrasi terus ke seller memerlukan login ejen.)';
+    }
+
+    init();
+  </script>
 </body>
 </html>
