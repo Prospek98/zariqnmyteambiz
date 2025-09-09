@@ -2,60 +2,68 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>Ejen • CarHub Johor</title>
+  <title>Portal Ejen • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./config.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-  <header class="container">
-    <div class="logo"><span class="logo-dot"></span>Ejen CarHub Johor</div>
+  <header class="container row" style="justify-content:space-between">
+    <div class="logo"><span class="logo-dot"></span>Portal Ejen</div>
+    <div id="authBox" class="row"></div>
   </header>
 
-  <main class="container">
-    <section id="sellerBox" class="card"><div class="card-pad">Memuat ejen...</div></section>
-    <section class="card" style="margin-top:16px">
-      <div class="card-pad">
-        <div class="kicker">Kenapa beli dengan kami?</div>
-        <ul>
-          <li>Harga telus, ejen bertauliah.</li>
-          <li>Rebate selepas pembelian — guna untuk servis/insurans.</li>
-          <li>Urusan roadtax & insurans disediakan.</li>
-        </ul>
+  <main class="container card">
+    <div class="card-pad">
+      <div class="kicker">Buat Booking</div>
+      <h2 class="h2">Servis / Test Drive</h2>
+      <div class="grid grid-2">
+        <input id="sale_id" class="input" placeholder="Sale ID (jika ada portal pelanggan)">
+        <input id="cust_phone" class="input" placeholder="Telefon pelanggan">
+        <select id="type" class="select"><option value="service">Servis</option><option value="testdrive">Test Drive</option></select>
+        <input id="brand" class="input" placeholder="Jenama">
+        <input id="model" class="input" placeholder="Model">
+        <input id="mileage" class="input" placeholder="Mileage (km)">
+        <label class="row"><input id="pickup" type="checkbox"> Perlu pick-up</label>
+        <label class="row"><input id="use_rebate" type="checkbox"> Guna rebate (jika ada)</label>
+        <input id="notes" class="input" placeholder="Nota">
       </div>
-    </section>
+      <div class="sep"></div>
+      <button class="btn" onclick="createBooking()">Hantar</button>
+      <div id="result" class="notice" style="margin-top:8px"></div>
+    </div>
   </main>
 
   <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
 
   <script>
     document.getElementById('year').textContent=new Date().getFullYear();
-    const id = new URLSearchParams(location.search).get('s');
 
-    function cardSellerFull(x){
-      const img = x.photo_url ? `<img class="listing-img" src="${x.photo_url}" alt="${x.name}">` : `<div class="listing-img"></div>`;
-      return `<div class="card">${img}
-        <div class="card-pad">
-          <div class="h2">${x.name}</div>
-          <div class="row"><span class="badge">Lokasi: ${x.location||'-'}</span><span class="badge mono">${x.id}</span></div>
-          <div class="sep"></div>
-          <div class="row">
-            <a class="btn whatsapp" href="https://wa.me/${x.whatsapp||ADMIN_WHATSAPP}" target="_blank">WhatsApp ejen</a>
-            <a class="btn btn-ghost" href="./index.html#kereta">Lihat kereta baharu</a>
-          </div>
-        </div></div>`;
-    }
+    // Google Sign-In
+    window.onload = () => {
+      const box = document.getElementById('authBox');
+      if(localStorage.getItem('id_token')){
+        box.innerHTML = `<span class="badge">Logged in</span><button class="btn btn-ghost" onclick="signOut()">Sign out</button>`;
+      } else {
+        box.innerHTML = `<div id="g_id_onload" data-client_id="${CLIENT_ID}" data-auto_prompt="false" data-callback="onSignIn"></div>
+        <div class="g_id_signin" data-type="standard" data-size="large"></div>`;
+        google.accounts.id.initialize({ client_id: CLIENT_ID, callback:onSignIn });
+        google.accounts.id.renderButton(document.querySelector('.g_id_signin'), { theme:'outline', size:'large' });
+      }
+    };
+    function onSignIn(res){ if(res && res.credential){ localStorage.setItem('id_token', res.credential); location.reload(); } }
+    function signOut(){ localStorage.removeItem('id_token'); location.reload(); }
 
-    async function init(){
-      if(!id){ sellerBox.innerHTML='<div class="card-pad">ID ejen tidak sah.</div>'; return; }
-      // tiada endpoint single seller, jadi tarik semua dan tapis
-      const r = await apiGet('sellers', {});
-      if(!r.ok){ sellerBox.innerHTML='<div class="card-pad">Gagal memuat ejen.</div>'; return; }
-      const x = (r.data||[]).find(s=>String(s.id)===String(id));
-      if(!x){ sellerBox.innerHTML='<div class="card-pad">Ejen tidak ditemui.</div>'; return; }
-      sellerBox.innerHTML = cardSellerFull(x);
+    async function createBooking(){
+      const payload={
+        sale_id: sale_id.value, customer_phone: cust_phone.value, type: type.value,
+        brand: brand.value, model: model.value, mileage: mileage.value,
+        pickup: pickup.checked, use_rebate: use_rebate.checked, notes: notes.value
+      };
+      const r=await apiPost('create_booking', payload, true);
+      result.textContent = r.ok ? `Booking ID: ${r.data.booking_id} • Jumlah: ${fmtRM(r.data.amount_due)}` : (r.error||'Gagal');
     }
-    init();
   </script>
 </body>
 </html>
