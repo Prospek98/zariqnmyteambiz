@@ -1,0 +1,64 @@
+<!doctype html>
+<button id="saveT" class="bg-gray-800 text-white rounded-xl px-3 py-2">Simpan</button>
+<span id="tokMsg" class="text-sm text-gray-600"></span>
+</div>
+
+
+<h2 class="mt-6 text-xl font-semibold">Draf Menunggu Siar</h2>
+<div id="drafts" class="grid md:grid-cols-2 gap-4 mt-2"></div>
+
+
+<h2 class="mt-6 text-xl font-semibold">Permohonan Roadtax</h2>
+<div id="roadtax" class="grid md:grid-cols-2 gap-4 mt-2"></div>
+
+
+<h2 class="mt-6 text-xl font-semibold">Tempahan (Test Drive/Servis)</h2>
+<div id="bookings" class="grid md:grid-cols-2 gap-4 mt-2"></div>
+</div>
+<script>
+const WEB_APP_URL='https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec';
+const LS='carhub_admin_token';
+function getTok(){ return localStorage.getItem(LS)||''; }
+function hdr(){ const t=getTok(); return t? { 'Content-Type':'application/json', 'Authorization':'Bearer '+t } : {'Content-Type':'application/json'}; }
+
+
+document.getElementById('saveT').onclick=()=>{ localStorage.setItem(LS, token.value.trim()); tokMsg.textContent='Disimpan.'; loadAll(); };
+window.addEventListener('load',()=>{ token.value=getTok(); loadAll(); });
+
+
+async function loadDrafts(){
+const p=new URLSearchParams({path:'listings',status:'draft'}); const r=await fetch(`${WEB_APP_URL}?${p.toString()}`); const j=await r.json();
+drafts.innerHTML=(j.data||[]).map(x=>{
+const img=(x.image_urls||'').split(',')[0]||'';
+return `<div class='bg-white rounded-2xl p-3 shadow'><div class='flex gap-3'>
+<img src='${img}' class='w-28 h-20 object-cover rounded-xl'/>
+<div class='flex-1'>
+<div class='font-semibold'>${x.title}</div>
+<div class='text-sm text-gray-600'>RM ${(Number(x.price)||0).toLocaleString('ms-MY')} • ${x.location}</div>
+<button data-id='${x.id}' class='pub bg-indigo-600 text-white px-3 py-1 rounded-lg mt-2'>Siar</button>
+</div></div></div>`
+}).join('');
+[...document.querySelectorAll('.pub')].forEach(b=> b.onclick=()=>publish(b.dataset.id));
+}
+
+
+async function publish(id){
+const r=await fetch(WEB_APP_URL,{ method:'POST', headers:hdr(), body:JSON.stringify({action:'publish_listing', payload:{id}})});
+const j=await r.json(); if(j.ok){ loadDrafts(); alert('Disiarkan'); } else alert('Ralat: '+(j.error||'unauthorized'));
+}
+
+
+async function loadBookings(){
+bookings.innerHTML = `<div class='text-sm text-gray-600'>Rujuk tab <b>Bookings</b> dalam Google Sheets untuk senarai penuh. (Endpoint list khusus boleh ditambah bila perlu)</div>`;
+}
+
+
+async function loadRoadtax(){
+roadtax.innerHTML = `<div class='text-sm text-gray-600'>Rujuk tab <b>RoadtaxRequests</b> dalam Google Sheets. (Endpoint list & tindakan quote/upload boleh ditambah kemudian)</div>`;
+}
+
+
+function loadAll(){ loadDrafts(); loadBookings(); loadRoadtax(); }
+</script>
+</body>
+</html>
