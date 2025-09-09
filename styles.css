@@ -10,7 +10,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:u
 .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (max-width:900px){.grid-3{grid-template-columns:1fr 1fr}}
-@media (max-width:640px){.grid-3,.grid-2{grid-template-columns:1fr}}
+@media (max-width:640px){.grid-3,.grid-2{grid-template-columns:1fr}.container{padding:16px}}
 .card{background:var(--card);border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 16px rgba(2,6,23,.05);overflow:hidden}
 .card-pad{padding:16px}
 .btn{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;border:none;border-radius:999px;padding:10px 16px;font-weight:600;cursor:pointer}
@@ -33,3 +33,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:u
 .notice{font-size:12px;color:#475569}
 .whatsapp{background:#25d366}
 .whatsapp:hover{background:#1fb356}
+
+/* Admin tabs */
+.tabs{display:flex;gap:8px;overflow:auto;padding:0 24px 12px}
+.tab{white-space:nowrap;border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:8px 14px;cursor:pointer}
+.tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.section{display:none}
+.section.active{display:block}
