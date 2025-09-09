@@ -6,29 +6,32 @@ const BRAND_NAME  = "CarHub Johor";
 const ADMIN_WHATSAPP = "60109074190";
 // =============================================
 
-// GET helper (public)
+// PUBLIC: guna POST text/plain (elak CORS GET)
 function apiGet(path, params = {}) {
-  const url = new URL(WEB_APP_URL);
-  url.searchParams.set("path", path);
-  Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-  return fetch(url, { headers: { "Accept": "application/json" } })
-    .then(r => r.json());
+  // peta path → action API
+  const map = { listings: 'public_listings', sellers: 'public_sellers', portal: 'public_portal' };
+  const action = map[path] || ('public_' + path);
+
+  return fetch(WEB_APP_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' }, // elak preflight
+    body: JSON.stringify({ action, payload: params })
+  }).then(r => r.json());
 }
 
-// POST helper (admin/seller: needAuth=true)
+// PROTECTED (admin/seller): hantar id_token dalam BODY (bukan header)
 function apiPost(action, payload = {}, needAuth = false) {
   const body = { action, payload };
   if (needAuth) {
     const token = localStorage.getItem("id_token");
-    if (token) body.id_token = token; // << token dalam BODY, bukan header
+    if (token) body.id_token = token; // token dalam body
   }
   return fetch(WEB_APP_URL, {
-    method: "POST",
-    // text/plain mengelakkan preflight CORS
-    headers: { "Content-Type": "text/plain" },
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' }, // elak preflight
     body: JSON.stringify(body)
   }).then(r => r.json());
 }
 
-// util kecil
+// util
 function fmtRM(n){ return "RM " + (Number(n||0).toLocaleString("ms-MY")); }
