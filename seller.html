@@ -2,59 +2,60 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>Ejen — CarHub Johor</title>
+  <title>Ejen • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="./config.js"></script>
-  <style>
-    body{font-family:system-ui,Arial;margin:0;background:#f6f7fb;color:#111}
-    header{background:#0ea5e9;color:#fff;padding:16px 20px}
-    .wrap{max-width:1000px;margin:20px auto;padding:0 16px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
-    .card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .pill{display:inline-block;background:#eef;color:#036;padding:4px 8px;border-radius:999px;font-size:12px}
-    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer}
-    .muted{color:#6b7280}
-  </style>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./config.js"></script>
 </head>
 <body>
-<header><div id="brand">CarHub Johor — Ejen</div></header>
-<div class="wrap" id="app">Memuat…</div>
+  <header class="container">
+    <div class="logo"><span class="logo-dot"></span>Ejen CarHub Johor</div>
+  </header>
 
-<script>
-  document.getElementById('brand').textContent = BRAND_NAME + " — Ejen";
-  const q = new URL(location.href); const sid = q.searchParams.get("s")||"";
+  <main class="container">
+    <section id="sellerBox" class="card"><div class="card-pad">Memuat ejen...</div></section>
+    <section class="card" style="margin-top:16px">
+      <div class="card-pad">
+        <div class="kicker">Kenapa beli dengan kami?</div>
+        <ul>
+          <li>Harga telus, ejen bertauliah.</li>
+          <li>Rebate selepas pembelian — guna untuk servis/insurans.</li>
+          <li>Urusan roadtax & insurans disediakan.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
 
-  async function load(){
-    const r = await apiGet('sellers');
-    if(!r.ok){ document.getElementById('app').innerHTML = "Ralat"; return; }
-    const s = (r.data||[]).find(x => x.id===sid);
-    if(!s){ document.getElementById('app').innerHTML = "Ejen tidak ditemui."; return; }
-    const lr = await apiGet('listings');
-    const L = lr.ok ? lr.data : [];
+  <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
 
-    document.getElementById('app').innerHTML = `
-      <div class="card">
-        <div class="row">
-          <img src="${s.photo_url||'https://via.placeholder.com/72'}" style="width:72px;height:72px;border-radius:14px;object-fit:cover">
-          <div>
-            <h2 style="margin:0">${s.name}</h2>
-            <div class="muted">${s.location||'-'}</div>
+  <script>
+    document.getElementById('year').textContent=new Date().getFullYear();
+    const id = new URLSearchParams(location.search).get('s');
+
+    function cardSellerFull(x){
+      const img = x.photo_url ? `<img class="listing-img" src="${x.photo_url}" alt="${x.name}">` : `<div class="listing-img"></div>`;
+      return `<div class="card">${img}
+        <div class="card-pad">
+          <div class="h2">${x.name}</div>
+          <div class="row"><span class="badge">Lokasi: ${x.location||'-'}</span><span class="badge mono">${x.id}</span></div>
+          <div class="sep"></div>
+          <div class="row">
+            <a class="btn whatsapp" href="https://wa.me/${x.whatsapp||ADMIN_WHATSAPP}" target="_blank">WhatsApp ejen</a>
+            <a class="btn btn-ghost" href="./index.html#kereta">Lihat kereta baharu</a>
           </div>
-        </div>
-        <div class="row" style="margin-top:10px">
-          <a class="btn" href="https://wa.me/${s.whatsapp||ADMIN_WHATSAPP}">WhatsApp</a>
-          <a class="btn" href="./seller-portal.html?s=${encodeURIComponent(sid)}">Seller Portal</a>
-        </div>
-      </div>
+        </div></div>`;
+    }
 
-      <h3 style="margin-top:20px">Model Ditawarkan</h3>
-      <div class="grid">
-        ${L.map(x=>`<div class="card"><div class="pill">${x.brand}</div><h4>${x.model} ${x.variant||""}</h4><div class="muted">${fmtRM(x.otr_price)}</div></div>`).join('')}
-      </div>
-    `;
-  }
-  load();
-</script>
+    async function init(){
+      if(!id){ sellerBox.innerHTML='<div class="card-pad">ID ejen tidak sah.</div>'; return; }
+      // tiada endpoint single seller, jadi tarik semua dan tapis
+      const r = await apiGet('sellers', {});
+      if(!r.ok){ sellerBox.innerHTML='<div class="card-pad">Gagal memuat ejen.</div>'; return; }
+      const x = (r.data||[]).find(s=>String(s.id)===String(id));
+      if(!x){ sellerBox.innerHTML='<div class="card-pad">Ejen tidak ditemui.</div>'; return; }
+      sellerBox.innerHTML = cardSellerFull(x);
+    }
+    init();
+  </script>
 </body>
 </html>
