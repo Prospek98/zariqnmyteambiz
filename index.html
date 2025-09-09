@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CarHub Johor — Kereta Baharu, Ejen Bertauliah</title>
   <link rel="stylesheet" href="./styles.css">
-  <script defer src="./config.js"></script>
+  <script src="./config.js"></script>
 </head>
 <body>
   <header class="container">
@@ -149,7 +149,7 @@
       if(!payload.name || !payload.phone || !payload.plate_no){ alert('Sila lengkapkan nama, telefon & nombor pendaftaran.'); return; }
       const r = await apiPost('add_roadtax', payload, false);
       if(r.ok){ alert('Permohonan diterima. ID: '+r.data.id+'\nKami akan hubungi anda sekejap lagi.'); rt_name.value=rt_phone.value=rt_plate.value=rt_cc.value=''; }
-      else alert('Gagal hantar: '+(r.error||''));
+      else alert('Gagal hantar: '+(r.error||'')); 
     }
 
     loadListings(); loadSellers();
