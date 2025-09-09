@@ -2,157 +2,199 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>Admin Panel — CarHub Johor</title>
+  <title>Admin • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="./config.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./config.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    body{font-family:system-ui,Arial;margin:0;background:#0b1220;color:#e5e7eb}
-    header{padding:16px 20px;background:#111827;display:flex;justify-content:space-between; align-items:center}
-    .wrap{max-width:1100px;margin:20px auto;padding:0 16px}
-    .card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-    label{display:block;margin:8px 0 4px}
-    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #374151;background:#0b1220;color:#e5e7eb}
-    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer;margin-top:10px}
-    .muted{color:#9ca3af}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .ok{color:#86efac}
-    .err{color:#fca5a5}
-  </style>
 </head>
 <body>
-<header>
-  <div style="font-weight:700" id="brand">CarHub Johor — Admin</div>
-  <div id="loginArea"></div>
-</header>
+  <header class="container row" style="justify-content:space-between">
+    <div class="logo"><span class="logo-dot"></span>Admin • CarHub Johor</div>
+    <div id="authBox" class="row"></div>
+  </header>
 
-<div class="wrap">
-  <div class="grid">
-    <div class="card">
-      <h3>Tambah Ejen</h3>
-      <label>Nama</label><input id="s_name">
-      <label>E-mel (Google)</label><input id="s_email" placeholder="nama@gmail.com">
-      <label>Telefon</label><input id="s_phone">
-      <label>WhatsApp</label><input id="s_wa" placeholder="60XXXXXXXXX">
-      <label>Lokasi</label>
-      <select id="s_loc">
-        <option>Johor Bahru</option><option>Skudai</option><option>Pasir Gudang</option>
-        <option>Batu Pahat</option><option>Muar</option><option>Kluang</option>
-        <option>Pontian</option><option>Kota Tinggi</option><option>Segamat</option>
-        <option>Mersing</option><option>Tangkak</option>
-      </select>
-      <label>Komisen (RM)</label><input id="s_comm" type="number" value="500">
-      <button class="btn" onclick="addSeller()">Simpan</button>
-      <div id="s_out" class="muted" style="margin-top:8px"></div>
-    </div>
-
-    <div class="card">
-      <h3>Cipta Jualan + Portal</h3>
-      <label>Nama Pelanggan</label><input id="c_name">
-      <label>Telefon Pelanggan</label><input id="c_phone">
-      <label>Seller ID</label><input id="c_seller">
-      <label>Brand</label><input id="c_brand" placeholder="Proton">
-      <label>Model</label><input id="c_model" placeholder="X70">
-      <label>Variant</label><input id="c_var" placeholder="1.5T Premium">
-      <label>OTR Price</label><input id="c_otr" type="number" value="0">
-      <label>Rebate Initial (RM)</label><input id="c_rebate" type="number" value="2000">
-      <label>Maks Rebate % per claim (contoh 0.25)</label><input id="c_pct" type="number" step="0.01" value="0.25">
-      <label>Tarikh Expiry Rebate</label><input id="c_exp" type="date">
-      <button class="btn" onclick="createSale()">Cipta</button>
-      <div id="c_out" class="muted" style="margin-top:8px"></div>
-    </div>
-
-    <div class="card">
-      <h3>Rebate Topup / Redeem (Manual)</h3>
-      <label>Sale ID</label><input id="r_sale">
-      <label>Jumlah (RM)</label><input id="r_amt" type="number" value="100">
-      <label>Channel</label>
-      <select id="r_channel"><option>service</option><option>insurance</option><option>roadtax</option><option>other</option></select>
-      <div class="row">
-        <button class="btn" onclick="rebateTopup()">Topup</button>
-        <button class="btn" onclick="rebateRedeem()">Redeem</button>
+  <main class="container grid grid-2">
+    <!-- Tambah Ejen -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Ejen</div>
+        <h2 class="h2">Tambah Ejen Baharu</h2>
+        <div class="grid grid-2">
+          <input id="s_name" class="input" placeholder="Nama ejen">
+          <input id="s_email" class="input" placeholder="Email ejen">
+          <input id="s_phone" class="input" placeholder="Telefon">
+          <input id="s_wa" class="input" placeholder="WhatsApp (601xxxxxxxx)">
+          <input id="s_loc" class="input" placeholder="Lokasi (contoh Johor Bahru)">
+          <input id="s_photo" class="input" placeholder="Photo URL (optional)">
+          <select id="s_comm_type" class="select"><option>RM</option><option>%</option></select>
+          <input id="s_comm_val" class="input" placeholder="Komisen nilai">
+        </div>
+        <div class="sep"></div>
+        <button class="btn" onclick="addSeller()">Simpan</button>
+        <div id="sellerResult" class="notice" style="margin-top:8px"></div>
       </div>
-      <div id="r_out" class="muted" style="margin-top:8px"></div>
-    </div>
+    </section>
 
-    <div class="card">
-      <h3>Kemaskini Status Booking</h3>
-      <label>Booking ID</label><input id="b_id">
-      <label>Status Baru</label>
-      <select id="b_status">
-        <option>pending</option><option>pickup_scheduled</option><option>picked_up</option>
-        <option>at_center</option><option>servicing</option><option>ready</option>
-        <option>delivered</option><option>completed</option><option>cancelled</option>
-      </select>
-      <label>Catatan</label><input id="b_note">
-      <button class="btn" onclick="updateBooking()">Simpan</button>
-      <div id="b_out" class="muted" style="margin-top:8px"></div>
-    </div>
-  </div>
-</div>
+    <!-- Create Sale + Portal -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Jualan</div>
+        <h2 class="h2">Rekod Jualan & Jana Portal Pelanggan</h2>
+        <div class="grid grid-2">
+          <input id="c_name" class="input" placeholder="Nama pelanggan">
+          <input id="c_phone" class="input" placeholder="Telefon pelanggan">
+          <input id="c_seller" class="input" placeholder="Seller ID (cth S-... )">
+          <input id="c_brand" class="input" placeholder="Jenama">
+          <input id="c_model" class="input" placeholder="Model">
+          <input id="c_variant" class="input" placeholder="Variant">
+          <input id="c_otr" class="input" placeholder="On-the-road price">
+          <input id="c_rebate" class="input" placeholder="Initial rebate (RM)">
+          <input id="c_pct" class="input" placeholder="Max % per claim (cth 0.25)">
+          <input id="c_exp" class="input" placeholder="Tarikh tamat (YYYY-MM-DD)">
+        </div>
+        <div class="sep"></div>
+        <button class="btn" onclick="createSale()">Simpan & Jana Portal</button>
+        <div id="saleResult" class="notice" style="margin-top:8px"></div>
+      </div>
+    </section>
 
-<script>
-  document.getElementById('brand').textContent = BRAND_NAME + " — Admin";
+    <!-- Topup / Redeem manual -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Rebate</div>
+        <h2 class="h2">Topup / Redeem Manual</h2>
+        <div class="grid grid-2">
+          <input id="r_sale" class="input" placeholder="Sale ID (SL-...)">
+          <input id="r_phone" class="input" placeholder="Telefon pelanggan">
+          <input id="r_amt" class="input" placeholder="Amaun (RM)">
+          <input id="r_note" class="input" placeholder="Nota">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" onclick="rebateTopup()">Topup</button>
+          <button class="btn btn-ghost" onclick="rebateRedeem()">Redeem</button>
+        </div>
+        <div id="rebateResult" class="notice" style="margin-top:8px"></div>
+      </div>
+    </section>
 
-  // Google Sign-In
-  window.onload = function(){
-    google.accounts.id.initialize({
-      client_id: CLIENT_ID,
-      callback: onSignIn
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("loginArea"),
-      { theme: "outline", size: "large", text: "signin_with" }
-    );
-  }
-  function onSignIn(res){
-    localStorage.setItem("id_token", res.credential);
-    document.getElementById("loginArea").innerHTML = '<span class="ok">Signed in ✓</span>';
-  }
+    <!-- Roadtax -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Roadtax/Insurans</div>
+        <h2 class="h2">Kira Sebut Harga & Upload Cover Note</h2>
+        <div class="grid grid-2">
+          <input id="rt_id" class="input" placeholder="Roadtax Request ID (RT-...)">
+          <input id="rt_quote" class="input" placeholder="Quote (RM)">
+          <button class="btn" onclick="setQuote()">Set Quote</button>
+        </div>
+        <div class="sep"></div>
+        <div class="grid grid-2">
+          <input id="rt_id2" class="input" placeholder="Roadtax Request ID (RT-...)">
+          <input id="rt_file" type="file" class="input" accept=".pdf,.jpg,.png">
+          <button class="btn" onclick="uploadCover()">Upload Cover Note</button>
+        </div>
+        <div id="rtResult" class="notice" style="margin-top:8px"></div>
+      </div>
+    </section>
 
-  async function addSeller(){
-    const payload = {
-      name: val('s_name'), email: val('s_email'), phone: val('s_phone'),
-      whatsapp: val('s_wa'), location: val('s_loc'), commission_value: +val('s_comm')||0
+    <!-- Booking status -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Servis</div>
+        <h2 class="h2">Kemaskini Status Booking</h2>
+        <div class="grid grid-2">
+          <input id="bk_id" class="input" placeholder="Booking ID (BK-...)">
+          <select id="bk_status" class="select">
+            <option>pending</option>
+            <option>confirmed</option>
+            <option>picked_up</option>
+            <option>in_center</option>
+            <option>servicing</option>
+            <option>returning</option>
+            <option>completed</option>
+            <option>cancelled</option>
+          </select>
+          <input id="bk_notes" class="input" placeholder="Nota (optional)">
+          <button class="btn" onclick="updateBooking()">Kemaskini</button>
+        </div>
+        <div id="bkResult" class="notice" style="margin-top:8px"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Google Sign-In
+    window.onload = () => {
+      const box = document.getElementById('authBox');
+      if(localStorage.getItem('id_token')){
+        box.innerHTML = `<span class="badge">Logged in</span><button class="btn btn-ghost" onclick="signOut()">Sign out</button>`;
+      } else {
+        box.innerHTML = `<div id="g_id_onload" data-client_id="${CLIENT_ID}" data-auto_prompt="false" data-callback="onSignIn"></div>
+        <div class="g_id_signin" data-type="standard" data-size="large"></div>`;
+        google.accounts.id.initialize({ client_id: CLIENT_ID, callback:onSignIn });
+        google.accounts.id.renderButton(document.querySelector('.g_id_signin'), { theme:'outline', size:'large' });
+      }
     };
-    const r = await apiPost('add_seller', payload, true);
-    document.getElementById('s_out').innerHTML = r.ok ? 
-      `<span class="ok">OK</span> • Seller ID: <b>${r.data.seller_id}</b> • <a href="${r.data.public_url}">Public</a>` :
-      `<span class="err">${r.error||'Gagal'}</span>`;
-  }
+    function onSignIn(res){
+      if(res && res.credential){
+        localStorage.setItem('id_token', res.credential);
+        location.reload();
+      }
+    }
+    function signOut(){ localStorage.removeItem('id_token'); location.reload(); }
 
-  async function createSale(){
-    const payload = {
-      customer_name: val('c_name'), customer_phone: val('c_phone'),
-      seller_id: val('c_seller'), brand: val('c_brand'), model: val('c_model'), variant: val('c_var'),
-      on_the_road_price: +val('c_otr')||0, rebate_initial: +val('c_rebate')||0,
-      rebate_max_pct_per_claim: +val('c_pct')||0.25, rebate_expiry_date: val('c_exp')
-    };
-    const r = await apiPost('create_sale', payload, true);
-    document.getElementById('c_out').innerHTML = r.ok ?
-      `<span class="ok">OK</span> • Sale ID: <b>${r.data.sale_id}</b> • <a href="${r.data.portal_url}" target="_blank">Portal Pelanggan</a>` :
-      `<span class="err">${r.error||'Gagal'}</span>`;
-  }
-
-  async function rebateTopup(){
-    const payload = { sale_id: val('r_sale'), amount: +val('r_amt')||0, channel: val('r_channel') };
-    const r = await apiPost('rebate_topup', payload, true);
-    document.getElementById('r_out').innerHTML = r.ok ? `<span class="ok">OK</span> • Baki: ${fmtRM(r.data.balance)}` : `<span class="err">${r.error}</span>`;
-  }
-  async function rebateRedeem(){
-    const payload = { sale_id: val('r_sale'), amount: +val('r_amt')||0, channel: val('r_channel') };
-    const r = await apiPost('rebate_redeem', payload, true);
-    document.getElementById('r_out').innerHTML = r.ok ? `<span class="ok">OK</span> • Diguna: ${fmtRM(r.data.used)} • Baki: ${fmtRM(r.data.balance)}` : `<span class="err">${r.error}</span>`;
-  }
-
-  async function updateBooking(){
-    const payload = { id: val('b_id'), status: val('b_status'), notes: val('b_note') };
-    const r = await apiPost('update_booking_status', payload, true);
-    document.getElementById('b_out').innerHTML = r.ok ? `<span class="ok">OK</span> • Status: <b>${r.data.status}</b>` : `<span class="err">${r.error}</span>`;
-  }
-
-  function val(id){ return document.getElementById(id).value.trim(); }
-</script>
+    // Admin actions
+    async function addSeller(){
+      const payload = {
+        name:s_name.value,email:s_email.value,phone:s_phone.value,
+        whatsapp:s_wa.value,location:s_loc.value,photo_url:s_photo.value,
+        commission_type:s_comm_type.value,commission_value:s_comm_val.value
+      };
+      const r=await apiPost('add_seller', payload, true);
+      sellerResult.textContent = r.ok ? `Ejen ditambah. ID ${r.data.seller_id}
+Public URL: ${r.data.public_url}
+Portal URL: ${r.data.portal_url}` : (r.error||'Gagal');
+    }
+    async function createSale(){
+      const payload={
+        customer_name:c_name.value, customer_phone:c_phone.value,
+        seller_id:c_seller.value, brand:c_brand.value, model:c_model.value, variant:c_variant.value,
+        on_the_road_price:c_otr.value, rebate_initial:c_rebate.value,
+        rebate_max_pct_per_claim:c_pct.value, rebate_expiry_date:c_exp.value
+      };
+      const r=await apiPost('create_sale', payload, true);
+      saleResult.textContent = r.ok ? `Sale ID ${r.data.sale_id} • Portal: ${r.data.portal_url}` : (r.error||'Gagal');
+    }
+    async function rebateTopup(){
+      const payload={ sale_id:r_sale.value, customer_phone:r_phone.value, amount:r_amt.value, channel:'other', note:r_note.value };
+      const r=await apiPost('rebate_topup', payload, true);
+      rebateResult.textContent = r.ok ? `Baki terkini: RM ${r.data.balance}` : (r.error||'Gagal');
+    }
+    async function rebateRedeem(){
+      const payload={ sale_id:r_sale.value, amount:r_amt.value, channel:'service', note:r_note.value };
+      const r=await apiPost('rebate_redeem', payload, true);
+      rebateResult.textContent = r.ok ? `Digunakan: RM ${r.data.used} • Baki: RM ${r.data.balance}` : (r.error||'Gagal');
+    }
+    async function setQuote(){
+      const r=await apiPost('set_roadtax_quote', { id:rt_id.value, amount:rt_quote.value }, true);
+      rtResult.textContent = r.ok ? `Quote ditetapkan: RM ${r.data.quote_amount}` : (r.error||'Gagal');
+    }
+    async function uploadCover(){
+      const file=rt_file.files[0]; if(!file){ alert('Pilih fail'); return; }
+      const b64 = await toBase64(file);
+      const r=await apiPost('upload_cover_note', { id:rt_id2.value, base64:b64 }, true);
+      rtResult.textContent = r.ok ? `Upload berjaya: ${r.data.cover_note_url}` : (r.error||'Gagal');
+    }
+    async function updateBooking(){
+      const r=await apiPost('update_booking_status', { id:bk_id.value, status:bk_status.value, notes:bk_notes.value }, true);
+      bkResult.textContent = r.ok ? `Status: ${r.data.status}` : (r.error||'Gagal');
+    }
+    function toBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
+  </script>
 </body>
 </html>
