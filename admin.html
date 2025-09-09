@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>Admin • CarHub Johor</title>
+  <title>Admin • ZARIQAFRO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./styles.css">
   <script src="./config.js"></script>
@@ -10,14 +10,24 @@
 </head>
 <body>
   <header class="container row" style="justify-content:space-between">
-    <div class="logo"><span class="logo-dot"></span>Admin • CarHub Johor</div>
+    <div class="logo"><span class="logo-dot"></span>Admin • ZARIQAFRO</div>
     <div id="authBox" class="row"></div>
   </header>
 
-  <main class="container grid grid-2">
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-sec="cms">Laman</button>
+    <button class="tab" data-sec="brands">Jenama</button>
+    <button class="tab" data-sec="sellers">Ejen</button>
+    <button class="tab" data-sec="sales">Jualan</button>
+    <button class="tab" data-sec="inventory">Inventori</button>
+    <button class="tab" data-sec="roadtax">Roadtax/Insurans</button>
+    <button class="tab" data-sec="booking">Booking Status</button>
+    <button class="tab" data-sec="dashboard">Dashboard</button>
+  </nav>
 
-    <!-- ====== CMS / Site Settings ====== -->
-    <section class="card">
+  <main class="container">
+    <!-- CMS -->
+    <section id="sec_cms" class="section active card">
       <div class="card-pad">
         <div class="kicker">Laman</div>
         <h2 class="h2">Seting Laman (Logo, Hero, WhatsApp)</h2>
@@ -26,32 +36,37 @@
           <input id="cfg_wa" class="input" placeholder="WhatsApp default (601...)">
           <input id="cfg_hero" class="input" placeholder="Hero Title">
           <textarea id="cfg_points" class="input" placeholder="Bullet points (asingkan dengan ; )"></textarea>
-          <input id="logo_file" type="file" class="input" accept=".png,.jpg,.jpeg,.svg">
+          <div>
+            <label class="kicker">Logo</label>
+            <input id="logo_file" type="file" class="input" accept=".png,.jpg,.jpeg,.svg">
+            <button class="btn" style="margin-top:8px" onclick="uploadLogo()">Upload Logo</button>
+          </div>
         </div>
-        <div class="row" style="margin-top:8px">
+        <div class="row" style="margin-top:12px">
           <button class="btn" onclick="saveConfig()">Simpan Seting</button>
-          <button class="btn btn-ghost" onclick="uploadLogo()">Upload Logo</button>
+          <button class="btn btn-ghost" onclick="preloadConfig()">Refresh config</button>
         </div>
         <div id="cfgResult" class="notice" style="margin-top:8px"></div>
       </div>
     </section>
 
-    <!-- ====== Brands ====== -->
-    <section class="card">
+    <!-- Brands -->
+    <section id="sec_brands" class="section card">
       <div class="card-pad">
         <div class="kicker">Jenama</div>
         <h2 class="h2">Urus Jenama</h2>
         <div class="row">
           <input id="brand_name" class="input" placeholder="Nama jenama (cth Proton)">
           <button class="btn" onclick="addBrand()">Tambah Jenama</button>
+          <button class="btn btn-ghost" onclick="loadBrands()">Refresh</button>
         </div>
         <div class="sep"></div>
         <div id="brandList" class="grid grid-2"></div>
       </div>
     </section>
 
-    <!-- ====== Tambah Ejen ====== -->
-    <section class="card">
+    <!-- Sellers -->
+    <section id="sec_sellers" class="section card">
       <div class="card-pad">
         <div class="kicker">Ejen</div>
         <h2 class="h2">Tambah Ejen Baharu</h2>
@@ -71,8 +86,8 @@
       </div>
     </section>
 
-    <!-- ====== Rekod Jualan & Portal ====== -->
-    <section class="card">
+    <!-- Sales -->
+    <section id="sec_sales" class="section card">
       <div class="card-pad">
         <div class="kicker">Jualan</div>
         <h2 class="h2">Rekod Jualan & Jana Portal Pelanggan</h2>
@@ -94,8 +109,8 @@
       </div>
     </section>
 
-    <!-- ====== Listings: Tambah & Terbit ====== -->
-    <section class="card">
+    <!-- Inventory -->
+    <section id="sec_inventory" class="section card">
       <div class="card-pad">
         <div class="kicker">Inventori</div>
         <h2 class="h2">Tambah Listing Kereta</h2>
@@ -120,21 +135,8 @@
       </div>
     </section>
 
-    <!-- ====== Dashboard Jualan ====== -->
-    <section class="card" style="grid-column:1/-1">
-      <div class="card-pad">
-        <div class="kicker">Dashboard</div>
-        <h2 class="h2">Ringkasan Jualan & Rebate</h2>
-        <button class="btn" onclick="loadSummary()">Muatkan Ringkasan</button>
-        <div class="sep"></div>
-        <div id="sumTotals" class="row"></div>
-        <div class="sep"></div>
-        <div id="sumTable"></div>
-      </div>
-    </section>
-
-    <!-- ====== Roadtax ====== -->
-    <section class="card">
+    <!-- Roadtax -->
+    <section id="sec_roadtax" class="section card">
       <div class="card-pad">
         <div class="kicker">Roadtax/Insurans</div>
         <h2 class="h2">Sebut Harga & Cover Note</h2>
@@ -153,8 +155,8 @@
       </div>
     </section>
 
-    <!-- ====== Booking status ====== -->
-    <section class="card">
+    <!-- Booking -->
+    <section id="sec_booking" class="section card">
       <div class="card-pad">
         <div class="kicker">Servis</div>
         <h2 class="h2">Kemaskini Status Booking</h2>
@@ -172,14 +174,35 @@
       </div>
     </section>
 
+    <!-- Dashboard -->
+    <section id="sec_dashboard" class="section card">
+      <div class="card-pad">
+        <div class="kicker">Dashboard</div>
+        <h2 class="h2">Ringkasan Jualan & Rebate</h2>
+        <button class="btn" onclick="loadSummary()">Muatkan Ringkasan</button>
+        <div class="sep"></div>
+        <div id="sumTotals" class="row"></div>
+        <div class="sep"></div>
+        <div id="sumTable"></div>
+      </div>
+    </section>
   </main>
 
-  <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
+  <footer class="container footer">© <span id="year"></span> ZARIQAFRO</footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // ===== Auth UI =====
+    // Tabs
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(t=>t.onclick=()=>{ 
+      tabs.forEach(x=>x.classList.remove('active')); t.classList.add('active');
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      document.getElementById('sec_'+t.dataset.sec).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    // Auth
     window.onload = () => {
       const box = document.getElementById('authBox');
       if(localStorage.getItem('id_token')){
@@ -196,37 +219,27 @@
     function onSignIn(res){ if(res && res.credential){ localStorage.setItem('id_token', res.credential); location.reload(); } }
     function signOut(){ localStorage.removeItem('id_token'); location.reload(); }
 
-    // ===== CMS =====
-    async function preloadConfig(){
-      const r = await apiGet('config', {});
-      if(!r.ok) return;
-      const c=r.data;
-      cfg_brand.value = c.brand_name || '';
-      cfg_wa.value = c.default_whatsapp || '';
-      cfg_hero.value = c.hero_title || '';
-      cfg_points.value = (c.hero_points||[]).join(';');
+    // CMS
+    async function preloadConfig(){ const r = await apiGet('config', {}); if(!r.ok) return; const c=r.data;
+      cfg_brand.value = c.brand_name || ''; cfg_wa.value = c.default_whatsapp || '';
+      cfg_hero.value = c.hero_title || ''; cfg_points.value = (c.hero_points||[]).join(';');
     }
     async function saveConfig(){
-      const payload = {
-        brand_name: cfg_brand.value,
-        default_whatsapp: cfg_wa.value,
-        hero_title: cfg_hero.value,
-        hero_points: cfg_points.value
-      };
+      const payload = { brand_name: cfg_brand.value, default_whatsapp: cfg_wa.value, hero_title: cfg_hero.value, hero_points: cfg_points.value };
       const r = await apiPost('set_config', payload, true);
       cfgResult.textContent = r.ok ? 'Seting disimpan.' : (r.error||'Gagal');
     }
     async function uploadLogo(){
       const f = logo_file.files[0]; if(!f){ alert('Pilih logo'); return; }
-      const b64 = await toBase64(f);
-      const r = await apiPost('upload_logo', { base64: b64 }, true);
-      cfgResult.textContent = r.ok ? 'Logo dikemas kini.' : (r.error||'Gagal');
+      const b64 = await fileToBase64(f);
+      // fallback no-cors (hilangkan blok CORS jika belum guna Worker)
+      const r = await apiPost('upload_logo', { base64: b64 }, true, { noCors: true });
+      cfgResult.textContent = 'Logo dihantar. Klik "Refresh config" untuk lihat perubahan.';
     }
 
-    // ===== Brands =====
+    // Brands
     async function loadBrands(){
-      const r = await apiGet('brands', {});
-      if(!r.ok) return;
+      const r = await apiGet('brands', {}); if(!r.ok) return;
       brandList.innerHTML = (r.data||[]).map(b=>{
         const badge = b.status==='active' ? 'badge' : 'badge btn-ghost';
         const to = b.status==='active' ? 'inactive' : 'active';
@@ -246,7 +259,7 @@
       if(r.ok) loadBrands(); else alert(r.error||'Gagal');
     }
 
-    // ===== Sellers =====
+    // Sellers
     async function addSeller(){
       const payload = {
         name:s_name.value,email:s_email.value,phone:s_phone.value,
@@ -254,40 +267,32 @@
         commission_type:s_comm_type.value,commission_value:s_comm_val.value
       };
       const r=await apiPost('add_seller', payload, true);
-      sellerResult.textContent = r.ok ? `Ejen ditambah. ID ${r.data.seller_id}
-Public URL: ${r.data.public_url}
-Portal URL: ${r.data.portal_url}` : (r.error||'Gagal');
+      sellerResult.textContent = r.ok ? `Ejen ditambah.` : (r.error||'Gagal');
     }
 
-    // ===== Sales & Portal =====
+    // Sales & Portal
     async function createSale(){
-      const payload={
-        customer_name:c_name.value, customer_phone:c_phone.value,
-        seller_id:c_seller.value, brand:c_brand.value, model:c_model.value, variant:c_variant.value,
-        on_the_road_price:c_otr.value, rebate_initial:c_rebate.value,
-        rebate_max_pct_per_claim:c_pct.value, rebate_expiry_date:c_exp.value
-      };
+      const payload={ customer_name:c_name.value, customer_phone:c_phone.value, seller_id:c_seller.value,
+        brand:c_brand.value, model:c_model.value, variant:c_variant.value, on_the_road_price:c_otr.value,
+        rebate_initial:c_rebate.value, rebate_max_pct_per_claim:c_pct.value, rebate_expiry_date:c_exp.value };
       const r=await apiPost('create_sale', payload, true);
-      saleResult.textContent = r.ok ? `Sale ID ${r.data.sale_id} • Portal: ${r.data.portal_url}` : (r.error||'Gagal');
+      saleResult.textContent = r.ok ? `Sale dicipta. Portal pelanggan dijana.` : (r.error||'Gagal');
     }
 
-    // ===== Listings =====
+    // Inventory
     async function addListing(){
       const files = Array.from(l_images.files||[]);
-      const imgs = await Promise.all(files.map(toBase64));
-      const payload = {
-        brand: l_brand.value, model: l_model.value, variant: l_variant.value,
-        price: l_price.value, base64_images: imgs, status: l_status.value
-      };
-      const r=await apiPost('add_listing', payload, true);
-      listResult.textContent = r.ok ? `Listing ditambah. ID ${r.data.id}` : (r.error||'Gagal');
+      const imgs = await Promise.all(files.map(fileToBase64));
+      const payload = { brand:l_brand.value, model:l_model.value, variant:l_variant.value, price:l_price.value, base64_images:imgs, status:l_status.value };
+      const r=await apiPost('add_listing', payload, true, { noCors: true }); // elak CORS
+      listResult.textContent = 'Listing dihantar. Semak di Sheets. Guna "Ubah Status" untuk publish.';
     }
     async function publishListing(){
       const r=await apiPost('set_listing_status', { id: pub_id.value, status: pub_status.value }, true);
-      listResult.textContent = r.ok ? `Status listing ${r.data.id}: ${r.data.status}` : (r.error||'Gagal');
+      listResult.textContent = r.ok ? `Status ditukar.` : (r.error||'Gagal');
     }
 
-    // ===== Dashboard =====
+    // Dashboard
     async function loadSummary(){
       const r=await apiPost('sales_summary', {}, true);
       if(!r.ok){ sumTotals.textContent='Gagal muat ringkasan'; return; }
@@ -297,41 +302,34 @@ Portal URL: ${r.data.portal_url}` : (r.error||'Gagal');
         <div class="badge">Jumlah OTR: ${fmtRM(t.otr)}</div>
         <div class="badge">Rebate awal diberi: ${fmtRM(t.rebate_initial)}</div>
         <div class="badge">Redeem: ${fmtRM(t.redeem)}</div>
-        <div class="badge">Topup/Adjust: ${fmtRM(t.topup_adjust)}</div>
-      `;
+        <div class="badge">Topup/Adjust: ${fmtRM(t.topup_adjust)}</div>`;
       const rows = r.data.by_seller||[];
-      sumTable.innerHTML = `
-        <div class="grid grid-2">
-          ${rows.map(x=>`
-            <div class="card"><div class="card-pad">
-              <div class="h2" style="font-size:18px">Seller: ${x.seller_id}</div>
-              <div class="row"><span class="badge">Sales: ${x.sales}</span><span class="badge">OTR: ${fmtRM(x.otr)}</span></div>
-              <div class="row"><span class="badge">Rebate Awal: ${fmtRM(x.rebate_initial)}</span><span class="badge">Redeem: ${fmtRM(x.redeem)}</span></div>
-              <div class="row"><span class="badge">Topup/Adjust: ${fmtRM(x.topup_adjust)}</span></div>
-            </div></div>
-          `).join('')}
-        </div>`;
+      sumTable.innerHTML = `<div class="grid grid-2">${
+        rows.map(x=>`
+          <div class="card"><div class="card-pad">
+            <div class="h2" style="font-size:18px">Seller: ${x.seller_id}</div>
+            <div class="row"><span class="badge">Sales: ${x.sales}</span><span class="badge">OTR: ${fmtRM(x.otr)}</span></div>
+            <div class="row"><span class="badge">Rebate Awal: ${fmtRM(x.rebate_initial)}</span><span class="badge">Redeem: ${fmtRM(x.redeem)}</span></div>
+            <div class="row"><span class="badge">Topup/Adjust: ${fmtRM(x.topup_adjust)}</span></div>
+          </div></div>`).join('')
+      }</div>`;
     }
 
-    // ===== Roadtax =====
-    async function setQuote(){
-      const r=await apiPost('set_roadtax_quote', { id:rt_id.value, amount:rt_quote.value }, true);
-      rtResult.textContent = r.ok ? `Quote ditetapkan: RM ${r.data.quote_amount}` : (r.error||'Gagal');
-    }
+    // Roadtax
+    async function setQuote(){ const r=await apiPost('set_roadtax_quote', { id:rt_id.value, amount:rt_quote.value }, true);
+      rtResult.textContent = r.ok ? `Quote ditetapkan.` : (r.error||'Gagal'); }
     async function uploadCover(){
       const file=rt_file.files[0]; if(!file){ alert('Pilih fail'); return; }
-      const b64 = await toBase64(file);
-      const r=await apiPost('upload_cover_note', { id:rt_id2.value, base64:b64 }, true);
-      rtResult.textContent = r.ok ? `Upload berjaya: ${r.data.cover_note_url}` : (r.error||'Gagal');
+      const b64 = await fileToBase64(file);
+      const r=await apiPost('upload_cover_note', { id:rt_id2.value, base64:b64 }, true, { noCors:true });
+      rtResult.textContent = 'Cover note dihantar. Semak di Sheets/Drive.';
     }
 
-    // ===== Booking =====
+    // Booking
     async function updateBooking(){
       const r=await apiPost('update_booking_status', { id:bk_id.value, status:bk_status.value, notes:bk_notes.value }, true);
-      bkResult.textContent = r.ok ? `Status: ${r.data.status}` : (r.error||'Gagal');
+      bkResult.textContent = r.ok ? `Status dikemas kini.` : (r.error||'Gagal');
     }
-
-    function toBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
   </script>
 </body>
 </html>
