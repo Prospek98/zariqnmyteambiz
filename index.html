@@ -2,109 +2,157 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>CarHub Johor — Kereta Baharu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="./config.js"></script>
-  <style>
-    body{font-family: system-ui, Arial; margin:0; background:#f6f7fb; color:#222}
-    header{background:#0ea5e9; color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center}
-    .wrap{max-width:1100px; margin:20px auto; padding:0 16px}
-    .grid{display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px}
-    .card{background:#fff; border-radius:14px; padding:14px; box-shadow:0 4px 18px rgba(0,0,0,.06)}
-    .muted{color:#6b7280}
-    .pill{display:inline-block; background:#eef; color:#036; padding:4px 8px; border-radius:999px; font-size:12px}
-    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-    .btn{background:#0ea5e9; color:#fff; padding:10px 14px; border:none; border-radius:10px; cursor:pointer}
-    .btn.secondary{background:#111827}
-    footer{padding:40px 20px; text-align:center; color:#6b7280}
-  </style>
+  <title>CarHub Johor — Kereta Baharu, Ejen Bertauliah</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./config.js"></script>
 </head>
 <body>
-  <header>
-    <div style="font-weight:700; font-size:20px" id="brand">CarHub Johor</div>
-    <div class="row">
-      <a class="btn secondary" href="./admin.html">Admin</a>
+  <header class="container">
+    <div class="row" style="justify-content:space-between">
+      <div class="logo"><span class="logo-dot"></span>CarHub Johor</div>
+      <nav class="row">
+        <a class="badge" href="./admin.html">Admin</a>
+        <a class="badge" href="#ejen">Cari Ejen</a>
+        <a class="badge" href="#roadtax">Roadtax/Insurans</a>
+        <a class="badge" href="#kereta">Kereta Baharu</a>
+      </nav>
     </div>
   </header>
 
-  <div class="wrap">
-    <h2>Kereta Baharu Terkini</h2>
-    <div id="listings" class="grid"></div>
-
-    <hr style="margin:28px 0">
-
-    <h2>Cari Ejen Ikut Lokasi</h2>
-    <div class="row">
-      <select id="lokasi">
-        <option value="">— Semua Lokasi —</option>
-        <option>Johor Bahru</option><option>Skudai</option><option>Pasir Gudang</option>
-        <option>Batu Pahat</option><option>Muar</option><option>Kluang</option>
-        <option>Pontian</option><option>Kota Tinggi</option><option>Segamat</option>
-        <option>Mersing</option><option>Tangkak</option>
-      </select>
-      <button class="btn" onclick="loadSellers()">Cari</button>
-    </div>
-    <div id="sellers" class="grid" style="margin-top:14px"></div>
-
-    <div class="card" style="margin-top:28px">
-      <h3>Mengapa beli dengan kami?</h3>
-      <ul>
-        <li>Portal pelanggan eksklusif selepas pembelian</li>
-        <li>Rebate wallet untuk servis / insurans / roadtax</li>
-        <li>Pickup servis opsyenal dan status servis live</li>
-      </ul>
-      <div class="muted">*Ciri-ciri di atas diaktifkan selepas anda membeli kereta dengan kami.</div>
-    </div>
-  </div>
-
-  <footer>© <span id="year"></span> <span id="brand2"></span>. Semua hak cipta terpelihara.</footer>
-
-<script>
-  document.getElementById("brand").textContent = BRAND_NAME;
-  document.getElementById("brand2").textContent = BRAND_NAME;
-  document.getElementById("year").textContent = new Date().getFullYear();
-
-  function cardListing(x){
-    return `<div class="card">
-      <div class="pill">${x.brand}</div>
-      <h3 style="margin:6px 0 4px">${x.model} ${x.variant||""}</h3>
-      <div class="muted">${fmtRM(x.otr_price)}</div>
-      <div style="margin-top:10px" class="row">
-        <a class="btn" href="https://wa.me/${ADMIN_WHATSAPP}?text=Hi,%20saya%20berminat%20${encodeURIComponent(x.brand+' '+x.model)}">WhatsApp Admin</a>
-      </div>
-    </div>`;
-  }
-
-  function cardSeller(s){
-    return `<div class="card">
+  <section class="container hero card">
+    <div class="card-pad">
+      <div class="kicker">Trusted Dealer • Negeri Johor</div>
+      <h1 class="h1">Beli kereta baharu Proton, Perodua, Honda & banyak lagi — terus dengan ejen bertauliah.</h1>
       <div class="row">
-        <img src="${s.photo_url||'https://via.placeholder.com/64'}" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:12px">
-        <div>
-          <div style="font-weight:700">${s.name}</div>
-          <div class="muted">${s.location||'-'}</div>
+        <a class="btn" href="#kereta">Lihat Kereta Baharu</a>
+        <a class="btn btn-ghost" href="#ejen">Cari Ejen Berdekatan</a>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <div class="badge">✔️ Rebat selepas pembelian</div>
+        <div class="badge">✔️ Urusan roadtax & insurans</div>
+        <div class="badge">✔️ Booking servis & pick-up pilihan</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="kereta" class="container">
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <div>
+        <div class="kicker">Inventori</div>
+        <h2 class="h2">Kereta Baharu Terkini</h2>
+      </div>
+      <div class="row">
+        <select id="brandFilter" class="select">
+          <option value="">Semua Jenama</option>
+          <option>Proton</option><option>Perodua</option><option>Honda</option><option>Toyota</option><option>Nissan</option>
+        </select>
+        <button class="btn" onclick="loadListings()">Tapis</button>
+      </div>
+    </div>
+    <div id="listingGrid" class="grid grid-3" style="margin-top:16px"></div>
+  </section>
+
+  <section id="ejen" class="container">
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <div>
+        <div class="kicker">Rangkaian Ejen</div>
+        <h2 class="h2">Cari Ejen Ikut Lokasi</h2>
+      </div>
+      <div class="row">
+        <input id="locInput" class="input" placeholder="Contoh: Johor Bahru">
+        <button class="btn" onclick="loadSellers()">Cari</button>
+      </div>
+    </div>
+    <div id="sellerGrid" class="grid grid-3" style="margin-top:16px"></div>
+  </section>
+
+  <section id="roadtax" class="container card">
+    <div class="card-pad">
+      <div class="kicker">Roadtax & Insurans</div>
+      <h2 class="h2">Mahu sambung roadtax atau insurans?</h2>
+      <div class="grid grid-2">
+        <input id="rt_name" class="input" placeholder="Nama penuh">
+        <input id="rt_phone" class="input" placeholder="No. telefon">
+        <select id="rt_type" class="select"><option value="car">Kereta</option><option value="motor">Motor</option></select>
+        <input id="rt_plate" class="input" placeholder="No. pendaftaran">
+        <input id="rt_cc" class="input" placeholder="Engine CC (contoh 1500)">
+        <button class="btn" onclick="submitRoadtax()">Dapatkan Sebut Harga</button>
+      </div>
+      <p class="notice" style="margin-top:8px">Kami akan hubungi anda untuk pengesahan. Proses pantas & telus.</p>
+    </div>
+  </section>
+
+  <footer class="container footer">
+    © <span id="year"></span> CarHub Johor. Semua Hak Cipta Terpelihara.
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function cardListing(x){
+      const img = (x.image_urls && x.image_urls.split(',')[0]) || '';
+      return `
+      <div class="card">
+        ${img ? `<img class="listing-img" src="${img}" alt="${x.brand} ${x.model}">` : `<div class="listing-img"></div>`}
+        <div class="card-pad">
+          <div class="kicker">${x.brand || ''}</div>
+          <div class="h2" style="font-size:18px">${x.model || ''} ${x.variant ? '• '+x.variant : ''}</div>
+          <div class="row"><span class="badge">Auto</span><span class="badge">Baru</span></div>
+          <div class="sep"></div>
+          <div class="price">${fmtRM(x.price || x.on_the_road_price || 0)}</div>
+          <a class="btn whatsapp" style="margin-top:10px" href="https://wa.me/${ADMIN_WHATSAPP}?text=Minat%20${encodeURIComponent(x.brand+' '+x.model)}" target="_blank">WhatsApp Sekarang</a>
         </div>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <a class="btn" href="https://wa.me/${s.whatsapp||ADMIN_WHATSAPP}">WhatsApp</a>
-        <a class="btn secondary" href="./seller.html?s=${encodeURIComponent(s.id)}">Laman Ejen</a>
-      </div>
-    </div>`;
-  }
+      </div>`;
+    }
+    function cardSeller(x){
+      const img = x.photo_url ? `<img class="listing-img" src="${x.photo_url}" alt="${x.name}">` : `<div class="listing-img"></div>`;
+      const url = `./seller.html?s=${encodeURIComponent(x.id)}`;
+      return `
+      <a class="card" href="${url}">
+        ${img}
+        <div class="card-pad">
+          <div class="h2" style="font-size:18px">${x.name}</div>
+          <div class="row"><span class="badge">Lokasi: ${x.location||'-'}</span></div>
+          <div class="sep"></div>
+          <div class="row">
+            <a class="btn whatsapp" href="https://wa.me/${x.whatsapp||ADMIN_WHATSAPP}" target="_blank">WhatsApp</a>
+            <span class="badge mono">${x.id}</span>
+          </div>
+        </div>
+      </a>`;
+    }
 
-  async function loadListings(){
-    const r = await apiGet('listings');
-    const data = (r&&r.ok)?r.data:[];
-    document.getElementById('listings').innerHTML = data.map(cardListing).join('');
-  }
-  async function loadSellers(){
-    const loc = document.getElementById('lokasi').value || '';
-    const r = await apiGet('sellers', {location: loc});
-    const data = (r&&r.ok)?r.data:[];
-    document.getElementById('sellers').innerHTML = data.map(cardSeller).join('') || '<div class="muted">Tiada ejen ditemui.</div>';
-  }
+    async function loadListings(){
+      const brand = document.getElementById('brandFilter').value || '';
+      const r = await apiGet('listings', { brand });
+      const grid = document.getElementById('listingGrid');
+      if(!r.ok){ grid.innerHTML = `<div class="card card-pad">Gagal memuatkan inventori.</div>`; return; }
+      grid.innerHTML = (r.data||[]).map(cardListing).join('') || `<div class="card card-pad">Tiada data.</div>`;
+    }
+    async function loadSellers(){
+      const loc = document.getElementById('locInput').value || '';
+      const r = await apiGet('sellers', { location: loc });
+      const grid = document.getElementById('sellerGrid');
+      if(!r.ok){ grid.innerHTML = `<div class="card card-pad">Gagal memuatkan ejen.</div>`; return; }
+      grid.innerHTML = (r.data||[]).map(cardSeller).join('') || `<div class="card card-pad">Tiada ejen ditemui.</div>`;
+    }
+    async function submitRoadtax(){
+      const payload = {
+        name: rt_name.value.trim(),
+        phone: rt_phone.value.trim(),
+        vehicle_type: rt_type.value,
+        plate_no: rt_plate.value.trim(),
+        engine_cc: rt_cc.value.trim()
+      };
+      if(!payload.name || !payload.phone || !payload.plate_no){ alert('Sila lengkapkan nama, telefon & nombor pendaftaran.'); return; }
+      const r = await apiPost('add_roadtax', payload, false);
+      if(r.ok){ alert('Permohonan diterima. ID: '+r.data.id+'\nKami akan hubungi anda sekejap lagi.'); rt_name.value=rt_phone.value=rt_plate.value=rt_cc.value=''; }
+      else alert('Gagal hantar: '+(r.error||''));
+    }
 
-  loadListings();
-  loadSellers();
-</script>
+    loadListings(); loadSellers();
+  </script>
 </body>
 </html>
