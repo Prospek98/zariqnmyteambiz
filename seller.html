@@ -5,7 +5,7 @@
   <title>Ejen • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./styles.css">
-  <script defer src="./config.js"></script>
+  <script src="./config.js"></script>
 </head>
 <body>
   <header class="container">
@@ -48,7 +48,6 @@
 
     async function init(){
       if(!id){ sellerBox.innerHTML='<div class="card-pad">ID ejen tidak sah.</div>'; return; }
-      // tiada endpoint single seller, jadi tarik semua dan tapis
       const r = await apiGet('sellers', {});
       if(!r.ok){ sellerBox.innerHTML='<div class="card-pad">Gagal memuat ejen.</div>'; return; }
       const x = (r.data||[]).find(s=>String(s.id)===String(id));
