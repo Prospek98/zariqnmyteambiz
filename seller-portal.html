@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <title>Seller Portal — CarHub Johor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./config.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body{font-family:system-ui,Arial;margin:0;background:#0b1220;color:#e5e7eb}
+    header{padding:16px 20px;background:#111827;display:flex;justify-content:space-between; align-items:center}
+    .wrap{max-width:900px;margin:20px auto;padding:0 16px}
+    .card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px}
+    label{display:block;margin:8px 0 4px}
+    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #374151;background:#0b1220;color:#e5e7eb}
+    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer;margin-top:10px}
+    .muted{color:#9ca3af}
+  </style>
+</head>
+<body>
+<header>
+  <div id="brand">CarHub Johor — Seller Portal</div>
+  <div id="loginArea"></div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h3>Buat Tempahan Servis untuk Pelanggan</h3>
+    <label>SALE ID (pelanggan)</label><input id="sp_sale" placeholder="SL-...">
+    <label>Brand</label><input id="sp_brand" placeholder="Proton">
+    <label>Model</label><input id="sp_model" placeholder="X70">
+    <label>Mileage (km)</label><input id="sp_mileage" type="number">
+    <label>Pickup?</label>
+    <select id="sp_pickup"><option value="false">Hantar sendiri</option><option value="true">Pickup (RM100)</option></select>
+    <label>Guna Rebate?</label>
+    <select id="sp_use"><option value="true">Ya</option><option value="false">Tidak</option></select>
+    <button class="btn" onclick="submitBooking()">Hantar</button>
+    <div id="sp_out" class="muted" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('brand').textContent = BRAND_NAME + " — Seller Portal";
+
+  // Google Sign-In
+  window.onload = function(){
+    google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: onSignIn
+    });
+    google.accounts.id.renderButton(
+      document.getElementById("loginArea"),
+      { theme: "outline", size: "large", text: "signin_with" }
+    );
+  }
+  function onSignIn(res){
+    localStorage.setItem("id_token", res.credential);
+    document.getElementById("loginArea").innerHTML = '<span style="color:#86efac">Signed in ✓</span>';
+  }
+
+  async function submitBooking(){
+    const payload = {
+      sale_id: val('sp_sale'),
+      customer_phone: "", type: "service",
+      brand: val('sp_brand'), model: val('sp_model'), mileage: +val('sp_mileage')||0,
+      use_rebate: (val('sp_use')==="true"), pickup: (val('sp_pickup')==="true")
+    };
+    const r = await apiPost('create_booking', payload, true); // seller authenticated
+    document.getElementById('sp_out').innerHTML = r.ok ?
+      `Jumlah: ${fmtRM(r.data.total_before_rebate)} • Guna rebate: ${fmtRM(r.data.rebate_used)} • Bayar: <b>${fmtRM(r.data.amount_due)}</b>` :
+      `<span style="color:#fca5a5">${r.error||'Gagal'}</span>`;
+  }
+
+  function val(id){ return document.getElementById(id).value.trim(); }
+</script>
+</body>
+</html>
