@@ -1,51 +1,60 @@
 <!doctype html>
 <html lang="ms">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Hantar Listing – Penjual</title>
-<script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="utf-8">
+  <title>Ejen — CarHub Johor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./config.js"></script>
+  <style>
+    body{font-family:system-ui,Arial;margin:0;background:#f6f7fb;color:#111}
+    header{background:#0ea5e9;color:#fff;padding:16px 20px}
+    .wrap{max-width:1000px;margin:20px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{display:inline-block;background:#eef;color:#036;padding:4px 8px;border-radius:999px;font-size:12px}
+    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer}
+    .muted{color:#6b7280}
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-<div class="max-w-3xl mx-auto p-4">
-<h1 class="text-2xl font-semibold mb-4">Tambah Listing (Draf)</h1>
-<div class="bg-white rounded-2xl p-5 shadow">
-<div class="grid md:grid-cols-2 gap-3">
-<input id="seller_name" class="border rounded-xl px-3 py-2" placeholder="Nama Penjual"/>
-<input id="seller_phone" class="border rounded-xl px-3 py-2" placeholder="Telefon (WhatsApp)"/>
-<input id="title" class="border rounded-xl px-3 py-2 md:col-span-2" placeholder="Tajuk Iklan (cth: Myvi 1.5 SE 2019)"/>
-<input id="price" type="number" class="border rounded-xl px-3 py-2" placeholder="Harga (RM)"/>
-<input id="year" type="number" class="border rounded-xl px-3 py-2" placeholder="Tahun"/>
-<input id="brand" class="border rounded-xl px-3 py-2" placeholder="Jenama"/>
-<input id="model" class="border rounded-xl px-3 py-2" placeholder="Model"/>
-<input id="mileage" type="number" class="border rounded-xl px-3 py-2" placeholder="Mileage (km)"/>
-<select id="location" class="border rounded-xl px-3 py-2">
-<option>Johor Bahru</option><option>Skudai</option><option>Pasir Gudang</option>
-<option>Batu Pahat</option><option>Muar</option><option>Kluang</option>
-<option>Pontian</option><option>Kota Tinggi</option><option>Segamat</option><option>Mersing</option><option>Tangkak</option>
-</select>
-<select id="transmission" class="border rounded-xl px-3 py-2"><option>Auto</option><option>Manual</option></select>
-<select id="fuel" class="border rounded-xl px-3 py-2"><option>Petrol</option><option>Diesel</option><option>Hybrid</option><option>EV</option></select>
-<input id="images" type="file" accept="image/*" multiple class="md:col-span-2"/>
-</div>
-<div id="thumbs" class="flex gap-2 flex-wrap my-3"></div>
-<button id="submit" class="bg-indigo-600 text-white rounded-xl px-4 py-2">Hantar Draf</button>
-<div id="msg" class="text-sm mt-3"></div>
-</div>
-</div>
+<body>
+<header><div id="brand">CarHub Johor — Ejen</div></header>
+<div class="wrap" id="app">Memuat…</div>
+
 <script>
-const WEB_APP_URL='https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec';
-const thumbs=document.getElementById('thumbs');
-images.addEventListener('change',()=>{ thumbs.innerHTML=''; [...images.files].forEach(f=>{ const u=URL.createObjectURL(f); const i=new Image(); i.src=u; i.className='w-24 h-24 object-cover rounded-xl'; thumbs.appendChild(i); }); });
-const toB64=f=>new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(f); });
-submit.onclick=async()=>{
-msg.textContent='';
-if(!seller_name.value||!seller_phone.value||!title.value){ msg.textContent='Sila lengkapkan Nama, Telefon, Tajuk.'; return; }
-const imagesBase64=[]; for(const f of images.files){ imagesBase64.push(await toB64(f)); }
-const payload={ seller_name:seller_name.value, seller_phone:seller_phone.value, title:title.value, price:+price.value||'', year:+year.value||'', brand:brand.value, model:model.value, mileage:+mileage.value||'', location:location.value, transmission:transmission.value, fuel:fuel.value, is_featured:false, images:imagesBase64 };
-const r=await fetch(WEB_APP_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'create_listing',payload}) });
-const j=await r.json(); if(j.ok){ msg.textContent='Draf berjaya dihantar. ID: '+j.data.id; images.value=''; thumbs.innerHTML=''; } else { msg.textContent='Ralat: '+j.error; }
-}
+  document.getElementById('brand').textContent = BRAND_NAME + " — Ejen";
+  const q = new URL(location.href); const sid = q.searchParams.get("s")||"";
+
+  async function load(){
+    const r = await apiGet('sellers');
+    if(!r.ok){ document.getElementById('app').innerHTML = "Ralat"; return; }
+    const s = (r.data||[]).find(x => x.id===sid);
+    if(!s){ document.getElementById('app').innerHTML = "Ejen tidak ditemui."; return; }
+    const lr = await apiGet('listings');
+    const L = lr.ok ? lr.data : [];
+
+    document.getElementById('app').innerHTML = `
+      <div class="card">
+        <div class="row">
+          <img src="${s.photo_url||'https://via.placeholder.com/72'}" style="width:72px;height:72px;border-radius:14px;object-fit:cover">
+          <div>
+            <h2 style="margin:0">${s.name}</h2>
+            <div class="muted">${s.location||'-'}</div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <a class="btn" href="https://wa.me/${s.whatsapp||ADMIN_WHATSAPP}">WhatsApp</a>
+          <a class="btn" href="./seller-portal.html?s=${encodeURIComponent(sid)}">Seller Portal</a>
+        </div>
+      </div>
+
+      <h3 style="margin-top:20px">Model Ditawarkan</h3>
+      <div class="grid">
+        ${L.map(x=>`<div class="card"><div class="pill">${x.brand}</div><h4>${x.model} ${x.variant||""}</h4><div class="muted">${fmtRM(x.otr_price)}</div></div>`).join('')}
+      </div>
+    `;
+  }
+  load();
 </script>
 </body>
 </html>
