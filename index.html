@@ -1,61 +1,110 @@
 <!doctype html>
 <html lang="ms">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CarHub Johor</title>
-<meta name="description" content="Marketplace kereta terpakai & servis Johor. Beli, test drive, renew roadtax, tempah servis – semuanya di satu tempat." />
-<link rel="icon" href="/favicon.ico"/>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>.shadow-smooth{box-shadow:0 10px 30px rgba(0,0,0,.06)}</style>
+  <meta charset="utf-8">
+  <title>CarHub Johor — Kereta Baharu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./config.js"></script>
+  <style>
+    body{font-family: system-ui, Arial; margin:0; background:#f6f7fb; color:#222}
+    header{background:#0ea5e9; color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center}
+    .wrap{max-width:1100px; margin:20px auto; padding:0 16px}
+    .grid{display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:16px}
+    .card{background:#fff; border-radius:14px; padding:14px; box-shadow:0 4px 18px rgba(0,0,0,.06)}
+    .muted{color:#6b7280}
+    .pill{display:inline-block; background:#eef; color:#036; padding:4px 8px; border-radius:999px; font-size:12px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{background:#0ea5e9; color:#fff; padding:10px 14px; border:none; border-radius:10px; cursor:pointer}
+    .btn.secondary{background:#111827}
+    footer{padding:40px 20px; text-align:center; color:#6b7280}
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-<header class="bg-white sticky top-0 z-20 border-b">
-<div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-<a href="./" class="flex items-center gap-2 font-semibold text-xl"><span class="inline-block w-8 h-8 bg-indigo-600 rounded-2xl"></span>CarHub Johor</a>
-<nav class="flex gap-4 text-sm">
-<a class="hover:text-indigo-600" href="seller.html">Jual</a>
-<a class="hover:text-indigo-600" href="roadtax.html">Renew Roadtax</a>
-<a class="hover:text-indigo-600" href="service.html">Servis</a>
-<a class="hover:text-indigo-600" href="admin.html">Admin</a>
-</nav>
-</div>
-</header>
+<body>
+  <header>
+    <div style="font-weight:700; font-size:20px" id="brand">CarHub Johor</div>
+    <div class="row">
+      <a class="btn secondary" href="./admin.html">Admin</a>
+    </div>
+  </header>
 
+  <div class="wrap">
+    <h2>Kereta Baharu Terkini</h2>
+    <div id="listings" class="grid"></div>
 
-<section class="max-w-6xl mx-auto px-4 py-8">
-<h1 class="text-2xl md:text-3xl font-semibold mb-4">Cari Kereta Terpakai di Johor</h1>
-<div class="grid md:grid-cols-5 gap-3 bg-white p-4 rounded-2xl shadow-smooth">
-<select id="f_location" class="border rounded-xl px-3 py-2">
-<option value="">Semua Lokasi</option>
-<option>Johor Bahru</option><option>Skudai</option><option>Pasir Gudang</option>
-<option>Batu Pahat</option><option>Muar</option><option>Kluang</option>
-<option>Pontian</option><option>Kota Tinggi</option><option>Segamat</option><option>Mersing</option><option>Tangkak</option>
-</select>
-<input id="f_maxprice" type="number" placeholder="Harga maks (RM)" class="border rounded-xl px-3 py-2"/>
-<select id="f_trans" class="border rounded-xl px-3 py-2">
-<option value="">Transmisi</option><option>Auto</option><option>Manual</option>
-</select>
-<input id="f_brand" placeholder="Jenama (cth: Perodua)" class="border rounded-xl px-3 py-2"/>
-<button id="btnSearch" class="bg-indigo-600 text-white rounded-xl px-4">Cari</button>
-</div>
+    <hr style="margin:28px 0">
 
+    <h2>Cari Ejen Ikut Lokasi</h2>
+    <div class="row">
+      <select id="lokasi">
+        <option value="">— Semua Lokasi —</option>
+        <option>Johor Bahru</option><option>Skudai</option><option>Pasir Gudang</option>
+        <option>Batu Pahat</option><option>Muar</option><option>Kluang</option>
+        <option>Pontian</option><option>Kota Tinggi</option><option>Segamat</option>
+        <option>Mersing</option><option>Tangkak</option>
+      </select>
+      <button class="btn" onclick="loadSellers()">Cari</button>
+    </div>
+    <div id="sellers" class="grid" style="margin-top:14px"></div>
 
-<div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div>
-</section>
+    <div class="card" style="margin-top:28px">
+      <h3>Mengapa beli dengan kami?</h3>
+      <ul>
+        <li>Portal pelanggan eksklusif selepas pembelian</li>
+        <li>Rebate wallet untuk servis / insurans / roadtax</li>
+        <li>Pickup servis opsyenal dan status servis live</li>
+      </ul>
+      <div class="muted">*Ciri-ciri di atas diaktifkan selepas anda membeli kereta dengan kami.</div>
+    </div>
+  </div>
 
-
-<footer class="py-10 text-center text-sm text-gray-500">© <span id="y"></span> CarHub Johor. Trusted marketplace Johor.</footer>
-
+  <footer>© <span id="year"></span> <span id="brand2"></span>. Semua hak cipta terpelihara.</footer>
 
 <script>
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec';
-const grid = document.getElementById('grid');
-const y = document.getElementById('y'); y.textContent = new Date().getFullYear();
+  document.getElementById("brand").textContent = BRAND_NAME;
+  document.getElementById("brand2").textContent = BRAND_NAME;
+  document.getElementById("year").textContent = new Date().getFullYear();
 
+  function cardListing(x){
+    return `<div class="card">
+      <div class="pill">${x.brand}</div>
+      <h3 style="margin:6px 0 4px">${x.model} ${x.variant||""}</h3>
+      <div class="muted">${fmtRM(x.otr_price)}</div>
+      <div style="margin-top:10px" class="row">
+        <a class="btn" href="https://wa.me/${ADMIN_WHATSAPP}?text=Hi,%20saya%20berminat%20${encodeURIComponent(x.brand+' '+x.model)}">WhatsApp Admin</a>
+      </div>
+    </div>`;
+  }
 
-function card(listing){
-const imgs=(listing.image_urls||'').split(',');
-const img=imgs[0]||'';
-const price=Number(listing.price||0).toLocaleString('ms-MY');
+  function cardSeller(s){
+    return `<div class="card">
+      <div class="row">
+        <img src="${s.photo_url||'https://via.placeholder.com/64'}" alt="" style="width:56px; height:56px; object-fit:cover; border-radius:12px">
+        <div>
+          <div style="font-weight:700">${s.name}</div>
+          <div class="muted">${s.location||'-'}</div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <a class="btn" href="https://wa.me/${s.whatsapp||ADMIN_WHATSAPP}">WhatsApp</a>
+        <a class="btn secondary" href="./seller.html?s=${encodeURIComponent(s.id)}">Laman Ejen</a>
+      </div>
+    </div>`;
+  }
+
+  async function loadListings(){
+    const r = await apiGet('listings');
+    const data = (r&&r.ok)?r.data:[];
+    document.getElementById('listings').innerHTML = data.map(cardListing).join('');
+  }
+  async function loadSellers(){
+    const loc = document.getElementById('lokasi').value || '';
+    const r = await apiGet('sellers', {location: loc});
+    const data = (r&&r.ok)?r.data:[];
+    document.getElementById('sellers').innerHTML = data.map(cardSeller).join('') || '<div class="muted">Tiada ejen ditemui.</div>';
+  }
+
+  loadListings();
+  loadSellers();
+</script>
+</body>
 </html>
