@@ -5,7 +5,7 @@
   <title>Admin • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./styles.css">
-  <script defer src="./config.js"></script>
+  <script src="./config.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -15,7 +15,6 @@
   </header>
 
   <main class="container grid grid-2">
-    <!-- Tambah Ejen -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Ejen</div>
@@ -36,7 +35,6 @@
       </div>
     </section>
 
-    <!-- Create Sale + Portal -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Jualan</div>
@@ -59,7 +57,6 @@
       </div>
     </section>
 
-    <!-- Topup / Redeem manual -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Rebate</div>
@@ -78,7 +75,6 @@
       </div>
     </section>
 
-    <!-- Roadtax -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Roadtax/Insurans</div>
@@ -98,7 +94,6 @@
       </div>
     </section>
 
-    <!-- Booking status -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Servis</div>
@@ -106,14 +101,9 @@
         <div class="grid grid-2">
           <input id="bk_id" class="input" placeholder="Booking ID (BK-...)">
           <select id="bk_status" class="select">
-            <option>pending</option>
-            <option>confirmed</option>
-            <option>picked_up</option>
-            <option>in_center</option>
-            <option>servicing</option>
-            <option>returning</option>
-            <option>completed</option>
-            <option>cancelled</option>
+            <option>pending</option><option>confirmed</option><option>picked_up</option>
+            <option>in_center</option><option>servicing</option><option>returning</option>
+            <option>completed</option><option>cancelled</option>
           </select>
           <input id="bk_notes" class="input" placeholder="Nota (optional)">
           <button class="btn" onclick="updateBooking()">Kemaskini</button>
