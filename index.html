@@ -3,14 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CarHub Johor — Kereta Baharu, Ejen Bertauliah</title>
+  <title id="titleTag">CarHub Johor — Kereta Baharu, Ejen Bertauliah</title>
   <link rel="stylesheet" href="./styles.css">
   <script src="./config.js"></script>
+  <!-- SEO ringkas + OG -->
+  <meta name="description" content="Beli kereta baharu Proton, Perodua, Honda & banyak lagi dengan ejen bertauliah di Johor. Rebat selepas pembelian, urusan roadtax & insurans, booking servis.">
+  <meta property="og:title" content="CarHub Johor — Kereta Baharu, Ejen Bertauliah">
+  <meta property="og:description" content="Rebat selepas pembelian, urusan roadtax & insurans, booking servis.">
+  <meta property="og:type" content="website">
 </head>
 <body>
   <header class="container">
     <div class="row" style="justify-content:space-between">
-      <div class="logo"><span class="logo-dot"></span>CarHub Johor</div>
+      <div class="logo" id="brandBox"><span class="logo-dot"></span><span id="brandName">CarHub Johor</span></div>
       <nav class="row">
         <a class="badge" href="./admin.html">Admin</a>
         <a class="badge" href="#ejen">Cari Ejen</a>
@@ -22,17 +27,15 @@
 
   <section class="container hero card">
     <div class="card-pad">
-      <div class="kicker">Trusted Dealer • Negeri Johor</div>
-      <h1 class="h1">Beli kereta baharu Proton, Perodua, Honda & banyak lagi — terus dengan ejen bertauliah.</h1>
-      <div class="row">
-        <a class="btn" href="#kereta">Lihat Kereta Baharu</a>
-        <a class="btn btn-ghost" href="#ejen">Cari Ejen Berdekatan</a>
+      <div class="kicker" id="kicker">Trusted Dealer • Negeri Johor</div>
+      <h1 class="h1" id="heroTitle">Beli kereta baharu Proton, Perodua, Honda & banyak lagi — terus dengan ejen bertauliah.</h1>
+      <div class="row" id="heroPoints">
+        <!-- points injected -->
       </div>
       <div class="sep"></div>
       <div class="row">
-        <div class="badge">✔️ Rebat selepas pembelian</div>
-        <div class="badge">✔️ Urusan roadtax & insurans</div>
-        <div class="badge">✔️ Booking servis & pick-up pilihan</div>
+        <a class="btn" href="#kereta">Lihat Kereta Baharu</a>
+        <a class="btn btn-ghost" href="#ejen">Cari Ejen Berdekatan</a>
       </div>
     </div>
   </section>
@@ -44,10 +47,7 @@
         <h2 class="h2">Kereta Baharu Terkini</h2>
       </div>
       <div class="row">
-        <select id="brandFilter" class="select">
-          <option value="">Semua Jenama</option>
-          <option>Proton</option><option>Perodua</option><option>Honda</option><option>Toyota</option><option>Nissan</option>
-        </select>
+        <select id="brandFilter" class="select"><option value="">Semua Jenama</option></select>
         <button class="btn" onclick="loadListings()">Tapis</button>
       </div>
     </div>
@@ -85,11 +85,30 @@
   </section>
 
   <footer class="container footer">
-    © <span id="year"></span> CarHub Johor. Semua Hak Cipta Terpelihara.
+    © <span id="year"></span> <span id="brandFoot">CarHub Johor</span>. Semua Hak Cipta Terpelihara.
   </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+    let DEFAULT_WA = ADMIN_WHATSAPP;
+
+    function applyConfig(c){
+      document.getElementById('brandName').textContent = c.brand_name || 'CarHub Johor';
+      document.getElementById('brandFoot').textContent = c.brand_name || 'CarHub Johor';
+      document.getElementById('heroTitle').textContent = c.hero_title || document.getElementById('heroTitle').textContent;
+      DEFAULT_WA = c.default_whatsapp || DEFAULT_WA;
+      // logo
+      if(c.logo_url){
+        const box = document.getElementById('brandBox');
+        const img = document.createElement('img'); img.src=c.logo_url; img.alt='Logo'; img.style.height='24px'; img.style.borderRadius='6px';
+        box.prepend(img);
+      }
+      // hero points
+      const hp = document.getElementById('heroPoints'); hp.innerHTML='';
+      (c.hero_points||[]).forEach(t=>{ const el=document.createElement('div'); el.className='badge'; el.textContent='✔️ '+t; hp.appendChild(el); });
+      // title tag
+      document.getElementById('titleTag').textContent = (c.brand_name||'CarHub Johor') + ' — Kereta Baharu, Ejen Bertauliah';
+    }
 
     function cardListing(x){
       const img = (x.image_urls && x.image_urls.split(',')[0]) || '';
@@ -99,10 +118,10 @@
         <div class="card-pad">
           <div class="kicker">${x.brand || ''}</div>
           <div class="h2" style="font-size:18px">${x.model || ''} ${x.variant ? '• '+x.variant : ''}</div>
-          <div class="row"><span class="badge">Auto</span><span class="badge">Baru</span></div>
+          <div class="row"><span class="badge">Baru</span></div>
           <div class="sep"></div>
           <div class="price">${fmtRM(x.price || x.on_the_road_price || 0)}</div>
-          <a class="btn whatsapp" style="margin-top:10px" href="https://wa.me/${ADMIN_WHATSAPP}?text=Minat%20${encodeURIComponent(x.brand+' '+x.model)}" target="_blank">WhatsApp Sekarang</a>
+          <a class="btn whatsapp" style="margin-top:10px" href="https://wa.me/${DEFAULT_WA}?text=Minat%20${encodeURIComponent(x.brand+' '+x.model)}" target="_blank">WhatsApp Sekarang</a>
         </div>
       </div>`;
     }
@@ -117,13 +136,27 @@
           <div class="row"><span class="badge">Lokasi: ${x.location||'-'}</span></div>
           <div class="sep"></div>
           <div class="row">
-            <a class="btn whatsapp" href="https://wa.me/${x.whatsapp||ADMIN_WHATSAPP}" target="_blank">WhatsApp</a>
+            <a class="btn whatsapp" href="https://wa.me/${x.whatsapp||DEFAULT_WA}" target="_blank">WhatsApp</a>
             <span class="badge mono">${x.id}</span>
           </div>
         </div>
       </a>`;
     }
 
+    async function loadConfig(){
+      const r = await apiGet('config', {});
+      if(r.ok) applyConfig(r.data);
+    }
+    async function loadBrands(){
+      const r = await apiGet('brands', {});
+      if(!r.ok) return;
+      const sel = document.getElementById('brandFilter');
+      (r.data||[]).forEach(b=>{
+        const opt=document.createElement('option');
+        opt.value=b.name; opt.textContent=b.name;
+        sel.appendChild(opt);
+      });
+    }
     async function loadListings(){
       const brand = document.getElementById('brandFilter').value || '';
       const r = await apiGet('listings', { brand });
@@ -152,7 +185,13 @@
       else alert('Gagal hantar: '+(r.error||'')); 
     }
 
-    loadListings(); loadSellers();
+    (async () => {
+      await loadConfig();
+      await loadBrands();
+      await loadListings();
+      await loadSellers();
+    })();
+
   </script>
 </body>
 </html>
