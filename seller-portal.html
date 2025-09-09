@@ -2,76 +2,60 @@
 <html lang="ms">
 <head>
   <meta charset="utf-8">
-  <title>Seller Portal — CarHub Johor</title>
+  <title>Ejen • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="./config.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    body{font-family:system-ui,Arial;margin:0;background:#0b1220;color:#e5e7eb}
-    header{padding:16px 20px;background:#111827;display:flex;justify-content:space-between; align-items:center}
-    .wrap{max-width:900px;margin:20px auto;padding:0 16px}
-    .card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px}
-    label{display:block;margin:8px 0 4px}
-    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #374151;background:#0b1220;color:#e5e7eb}
-    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer;margin-top:10px}
-    .muted{color:#9ca3af}
-  </style>
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./config.js"></script>
 </head>
 <body>
-<header>
-  <div id="brand">CarHub Johor — Seller Portal</div>
-  <div id="loginArea"></div>
-</header>
+  <header class="container">
+    <div class="logo"><span class="logo-dot"></span>Ejen CarHub Johor</div>
+  </header>
 
-<div class="wrap">
-  <div class="card">
-    <h3>Buat Tempahan Servis untuk Pelanggan</h3>
-    <label>SALE ID (pelanggan)</label><input id="sp_sale" placeholder="SL-...">
-    <label>Brand</label><input id="sp_brand" placeholder="Proton">
-    <label>Model</label><input id="sp_model" placeholder="X70">
-    <label>Mileage (km)</label><input id="sp_mileage" type="number">
-    <label>Pickup?</label>
-    <select id="sp_pickup"><option value="false">Hantar sendiri</option><option value="true">Pickup (RM100)</option></select>
-    <label>Guna Rebate?</label>
-    <select id="sp_use"><option value="true">Ya</option><option value="false">Tidak</option></select>
-    <button class="btn" onclick="submitBooking()">Hantar</button>
-    <div id="sp_out" class="muted" style="margin-top:8px"></div>
-  </div>
-</div>
+  <main class="container">
+    <section id="sellerBox" class="card"><div class="card-pad">Memuat ejen...</div></section>
+    <section class="card" style="margin-top:16px">
+      <div class="card-pad">
+        <div class="kicker">Kenapa beli dengan kami?</div>
+        <ul>
+          <li>Harga telus, ejen bertauliah.</li>
+          <li>Rebate selepas pembelian — guna untuk servis/insurans.</li>
+          <li>Urusan roadtax & insurans disediakan.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
 
-<script>
-  document.getElementById('brand').textContent = BRAND_NAME + " — Seller Portal";
+  <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
 
-  // Google Sign-In
-  window.onload = function(){
-    google.accounts.id.initialize({
-      client_id: CLIENT_ID,
-      callback: onSignIn
-    });
-    google.accounts.id.renderButton(
-      document.getElementById("loginArea"),
-      { theme: "outline", size: "large", text: "signin_with" }
-    );
-  }
-  function onSignIn(res){
-    localStorage.setItem("id_token", res.credential);
-    document.getElementById("loginArea").innerHTML = '<span style="color:#86efac">Signed in ✓</span>';
-  }
+  <script>
+    document.getElementById('year').textContent=new Date().getFullYear();
+    const id = new URLSearchParams(location.search).get('s');
 
-  async function submitBooking(){
-    const payload = {
-      sale_id: val('sp_sale'),
-      customer_phone: "", type: "service",
-      brand: val('sp_brand'), model: val('sp_model'), mileage: +val('sp_mileage')||0,
-      use_rebate: (val('sp_use')==="true"), pickup: (val('sp_pickup')==="true")
-    };
-    const r = await apiPost('create_booking', payload, true); // seller authenticated
-    document.getElementById('sp_out').innerHTML = r.ok ?
-      `Jumlah: ${fmtRM(r.data.total_before_rebate)} • Guna rebate: ${fmtRM(r.data.rebate_used)} • Bayar: <b>${fmtRM(r.data.amount_due)}</b>` :
-      `<span style="color:#fca5a5">${r.error||'Gagal'}</span>`;
-  }
+    function cardSellerFull(x){
+      const img = x.photo_url ? `<img class="listing-img" src="${x.photo_url}" alt="${x.name}">` : `<div class="listing-img"></div>`;
+      return `<div class="card">${img}
+        <div class="card-pad">
+          <div class="h2">${x.name}</div>
+          <div class="row"><span class="badge">Lokasi: ${x.location||'-'}</span><span class="badge mono">${x.id}</span></div>
+          <div class="sep"></div>
+          <div class="row">
+            <a class="btn whatsapp" href="https://wa.me/${x.whatsapp||ADMIN_WHATSAPP}" target="_blank">WhatsApp ejen</a>
+            <a class="btn btn-ghost" href="./index.html#kereta">Lihat kereta baharu</a>
+          </div>
+        </div></div>`;
+    }
 
-  function val(id){ return document.getElementById(id).value.trim(); }
-</script>
+    async function init(){
+      if(!id){ sellerBox.innerHTML='<div class="card-pad">ID ejen tidak sah.</div>'; return; }
+      // tiada endpoint single seller, jadi tarik semua dan tapis
+      const r = await apiGet('sellers', {});
+      if(!r.ok){ sellerBox.innerHTML='<div class="card-pad">Gagal memuat ejen.</div>'; return; }
+      const x = (r.data||[]).find(s=>String(s.id)===String(id));
+      if(!x){ sellerBox.innerHTML='<div class="card-pad">Ejen tidak ditemui.</div>'; return; }
+      sellerBox.innerHTML = cardSellerFull(x);
+    }
+    init();
+  </script>
 </body>
 </html>
