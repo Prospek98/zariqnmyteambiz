@@ -1,5 +1,4 @@
-<!-- config.js -->
-<script>
+
   // ====== EDIT INI ======
   const CLIENT_ID   = "472347273718-0itvg8e273buifaj1si9d47djmch7ge7.apps.googleusercontent.com"; 
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec";
@@ -29,4 +28,3 @@
   }
 
   function fmtRM(n){ return "RM " + (Number(n||0).toLocaleString("ms-MY")); }
-</script>
