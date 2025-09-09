@@ -5,7 +5,7 @@
   <title>Portal Pelanggan • CarHub Johor</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="./styles.css">
-  <script defer src="./config.js"></script>
+  <script src="./config.js"></script>
 </head>
 <body>
   <header class="container">
@@ -68,12 +68,7 @@
     const token = params.get('token');
 
     function fmt(n){ return "RM " + Number(n||0).toLocaleString("ms-MY"); }
-
-    function countdown(exp){
-      const dd = Math.max(0, Math.ceil((new Date(exp)-new Date())/(1000*3600*24)));
-      return dd;
-    }
-
+    function countdown(exp){ return Math.max(0, Math.ceil((new Date(exp)-new Date())/(1000*3600*24))); }
     function line(o){
       const sign = (o.type==='redeem'?'-':'+');
       return `<div class="row" style="justify-content:space-between"><div>${o.created_at || ''} • ${o.type}</div><div class="mono">${sign} ${fmt(o.amount)}</div></div>`;
@@ -97,10 +92,8 @@
         expiryBox.innerHTML = `<div class="badge">Tiada tarikh tamat ditetapkan</div>`;
       }
 
-      // ledger
       ledger.innerHTML = (d.ledger||[]).map(line).join('') || '<div>Tiada transaksi.</div>';
 
-      // upsell
       const ups = (d.listings||[]).slice(0,6).map(x=>{
         const img=(x.image_urls && x.image_urls.split(',')[0])||'';
         return `<div class="card">${img?`<img class="listing-img" src="${img}">`:`<div class="listing-img"></div>`}<div class="card-pad"><div class="kicker">${x.brand}</div><div class="h2" style="font-size:18px">${x.model||''}</div><div class="price">${fmt(x.price||0)}</div></div></div>`;
@@ -109,15 +102,8 @@
     }
 
     async function createBooking(){
-      const payload={
-        sale_id: saleId.textContent, customer_phone:'', type: bk_type.value,
-        brand: bk_brand.value, model: bk_model.value, mileage: bk_mileage.value,
-        pickup: bk_pickup.checked, use_rebate: bk_use_rebate.checked, notes: bk_notes.value
-      };
-      // Portal adalah public — booking memerlukan peranan seller/admin. Jadi untuk portal pelanggan,
-      // kita hanya rekod "permintaan" melalui roadtax atau minta agent hubungi.
-      // Pilihan sementara: minta pelanggan WhatsApp admin.
-      bkResult.textContent = 'Terima kasih! Sila WhatsApp kami untuk sahkan slot. (Integrasi terus ke seller memerlukan login ejen.)';
+      // Untuk keselamatan (portal pelanggan public), kita minta pelanggan WA untuk sahkan
+      bkResult.textContent = 'Terima kasih! Sila WhatsApp kami untuk sahkan slot. (Integrasi terus memerlukan login ejen.)';
     }
 
     init();
