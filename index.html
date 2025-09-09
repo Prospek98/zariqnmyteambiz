@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CarHub Johor</title>
+<meta name="description" content="Marketplace kereta terpakai & servis Johor. Beli, test drive, renew roadtax, tempah servis – semuanya di satu tempat." />
+<link rel="icon" href="/favicon.ico"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>.shadow-smooth{box-shadow:0 10px 30px rgba(0,0,0,.06)}</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<header class="bg-white sticky top-0 z-20 border-b">
+<div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+<a href="./" class="flex items-center gap-2 font-semibold text-xl"><span class="inline-block w-8 h-8 bg-indigo-600 rounded-2xl"></span>CarHub Johor</a>
+<nav class="flex gap-4 text-sm">
+<a class="hover:text-indigo-600" href="seller.html">Jual</a>
+<a class="hover:text-indigo-600" href="roadtax.html">Renew Roadtax</a>
+<a class="hover:text-indigo-600" href="service.html">Servis</a>
+<a class="hover:text-indigo-600" href="admin.html">Admin</a>
+</nav>
+</div>
+</header>
+
+
+<section class="max-w-6xl mx-auto px-4 py-8">
+<h1 class="text-2xl md:text-3xl font-semibold mb-4">Cari Kereta Terpakai di Johor</h1>
+<div class="grid md:grid-cols-5 gap-3 bg-white p-4 rounded-2xl shadow-smooth">
+<select id="f_location" class="border rounded-xl px-3 py-2">
+<option value="">Semua Lokasi</option>
+<option>Johor Bahru</option><option>Skudai</option><option>Pasir Gudang</option>
+<option>Batu Pahat</option><option>Muar</option><option>Kluang</option>
+<option>Pontian</option><option>Kota Tinggi</option><option>Segamat</option><option>Mersing</option><option>Tangkak</option>
+</select>
+<input id="f_maxprice" type="number" placeholder="Harga maks (RM)" class="border rounded-xl px-3 py-2"/>
+<select id="f_trans" class="border rounded-xl px-3 py-2">
+<option value="">Transmisi</option><option>Auto</option><option>Manual</option>
+</select>
+<input id="f_brand" placeholder="Jenama (cth: Perodua)" class="border rounded-xl px-3 py-2"/>
+<button id="btnSearch" class="bg-indigo-600 text-white rounded-xl px-4">Cari</button>
+</div>
+
+
+<div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div>
+</section>
+
+
+<footer class="py-10 text-center text-sm text-gray-500">© <span id="y"></span> CarHub Johor. Trusted marketplace Johor.</footer>
+
+
+<script>
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec';
+const grid = document.getElementById('grid');
+const y = document.getElementById('y'); y.textContent = new Date().getFullYear();
+
+
+function card(listing){
+const imgs=(listing.image_urls||'').split(',');
+const img=imgs[0]||'';
+const price=Number(listing.price||0).toLocaleString('ms-MY');
+</html>
