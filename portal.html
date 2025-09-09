@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <title>Portal Pelanggan — CarHub Johor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="./config.js"></script>
+  <style>
+    body{font-family:system-ui,Arial;margin:0;background:#f6f7fb;color:#111}
+    header{background:#0ea5e9;color:#fff;padding:16px 20px}
+    .wrap{max-width:1100px;margin:20px auto;padding:0 16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid #eee;font-size:14px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    input,select{width:100%;padding:10px;border-radius:10px;border:1px solid #E5E7EB}
+    .btn{background:#0ea5e9;color:#fff;padding:10px 14px;border:none;border-radius:10px;cursor:pointer}
+    .pill{display:inline-block;background:#eef;color:#036;padding:4px 8px;border-radius:999px;font-size:12px}
+    .muted{color:#6b7280}
+  </style>
+</head>
+<body>
+<header>
+  <div style="font-weight:700" id="brand">CarHub Johor — Portal Pelanggan</div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <div class="card" id="summary">
+      <h3 id="c_name">Pelanggan</h3>
+      <div>Baki Rebate: <b id="bal">RM 0</b> <span class="pill" id="expiry">Tamat dalam — hari</span></div>
+      <div class="muted" id="agent"></div>
+    </div>
+
+    <div class="card">
+      <h3>Tempah Servis</h3>
+      <label>Brand</label><input id="b_brand" placeholder="Proton">
+      <label>Model</label><input id="b_model" placeholder="X70">
+      <label>Mileage (km)</label><input id="b_mileage" type="number" value="10000">
+      <label>Pickup?</label>
+      <select id="b_pickup"><option value="false">Hantar sendiri</option><option value="true">Pickup (RM100)</option></select>
+      <label>Guna Rebate?</label>
+      <select id="b_use"><option value="true">Ya</option><option value="false">Tidak</option></select>
+      <button class="btn" onclick="createBooking()">Hantar Tempahan</button>
+      <div class="muted" id="b_out" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h3>Sejarah Rebate</h3>
+      <table id="ledger"><thead><tr><th>Tarikh</th><th>Jenis</th><th>Channel</th><th>Jumlah</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>Model Baharu</h3>
+    <div id="upsell" class="grid"></div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('brand').textContent = BRAND_NAME + " — Portal Pelanggan";
+
+  const url = new URL(location.href);
+  const token = url.searchParams.get("token") || "";
+
+  function cardUp(x){
+    return `<div class="card"><div class="pill">${x.brand}</div><h4>${x.model} ${x.variant||""}</h4><div class="muted">${fmtRM(x.otr_price)}</div></div>`;
+  }
+
+  async function loadPortal(){
+    if(!token){ document.body.innerHTML = "<div class='wrap'><div class='card'>Token tidak sah.</div></div>"; return; }
+    const r = await apiGet('portal', { token });
+    if(!r.ok || !r.data){ document.body.innerHTML = "<div class='wrap'><div class='card'>Portal tidak ditemui.</div></div>"; return; }
+    const d = r.data;
+    document.getElementById('c_name').textContent = d.customer_name || "Pelanggan";
+    document.getElementById('bal').textContent = fmtRM(d.balance);
+    const days = (d.days_left??null);
+    document.getElementById('expiry').textContent = (days!==null) ? `Tamat dalam ${days} hari` : '—';
+
+    // Agent
+    const a = d.agent;
+    document.getElementById('agent').innerHTML = a ? 
+      `Ejen anda: <b>${a.name}</b> (${a.location||'-'}) • <a href="https://wa.me/${a.whatsapp}" target="_blank">WhatsApp</a>` :
+      `Hubungi <a href="https://wa.me/${ADMIN_WHATSAPP}">Admin</a>`;
+
+    // Ledger
+    const tb = document.querySelector('#ledger tbody');
+    tb.innerHTML = (d.ledger||[]).map(x=>`<tr>
+      <td>${new Date(x.created_at).toLocaleString('ms-MY')}</td>
+      <td>${x.type}</td><td>${x.channel}</td><td>${fmtRM(x.amount)}</td>
+    </tr>`).join('') || `<tr><td colspan="4" class="muted">Tiada transaksi.</td></tr>`;
+
+    // Upsell
+    document.getElementById('upsell').innerHTML = (d.listings||[]).map(cardUp).join('');
+  }
+
+  async function createBooking(){
+    const payload = {
+      sale_id: (await getSaleIdByToken(token)),
+      customer_phone: "", type: "service",
+      brand: val('b_brand'), model: val('b_model'), mileage: +val('b_mileage')||0,
+      use_rebate: (val('b_use')==="true"), pickup: (val('b_pickup')==="true")
+    };
+    const r = await apiPost('create_booking', payload, true); // pelanggan perlu login? Jika tidak, tukar kepada false & sediakan route public. Untuk MVP: true.
+    document.getElementById('b_out').innerHTML = r.ok ? 
+      `Jumlah: ${fmtRM(r.data.total_before_rebate)} • Guna rebate: ${fmtRM(r.data.rebate_used)} • Bayar: <b>${fmtRM(r.data.amount_due)}</b>` :
+      `<span style="color:#b91c1c">${r.error||'Gagal'}</span>`;
+  }
+
+  async function getSaleIdByToken(t){
+    // cepat: panggil semula portal dan baca sale_id
+    const r = await apiGet('portal', { token: t });
+    return r.ok && r.data ? r.data.sale_id : "";
+  }
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  loadPortal();
+</script>
+</body>
+</html>
