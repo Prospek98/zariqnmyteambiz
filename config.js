@@ -1,7 +1,7 @@
 <!-- config.js -->
 <script>
   // ====== EDIT INI ======
-  const CLIENT_ID   = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"; 
+  const CLIENT_ID   = "472347273718-0itvg8e273buifaj1si9d47djmch7ge7.apps.googleusercontent.com"; 
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxmz1In-BjFP0dGspnYVRRbqJzuTmpxYfKflq4LLzQKU9dGxvtOgTROcxQ9p80oTVA/exec";
   const BRAND_NAME  = "CarHub Johor";
   const ADMIN_WHATSAPP = "60109074190";
