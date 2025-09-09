@@ -15,6 +15,42 @@
   </header>
 
   <main class="container grid grid-2">
+
+    <!-- ====== CMS / Site Settings ====== -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Laman</div>
+        <h2 class="h2">Seting Laman (Logo, Hero, WhatsApp)</h2>
+        <div class="grid grid-2">
+          <input id="cfg_brand" class="input" placeholder="Brand Name">
+          <input id="cfg_wa" class="input" placeholder="WhatsApp default (601...)">
+          <input id="cfg_hero" class="input" placeholder="Hero Title">
+          <textarea id="cfg_points" class="input" placeholder="Bullet points (asingkan dengan ; )"></textarea>
+          <input id="logo_file" type="file" class="input" accept=".png,.jpg,.jpeg,.svg">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" onclick="saveConfig()">Simpan Seting</button>
+          <button class="btn btn-ghost" onclick="uploadLogo()">Upload Logo</button>
+        </div>
+        <div id="cfgResult" class="notice" style="margin-top:8px"></div>
+      </div>
+    </section>
+
+    <!-- ====== Brands ====== -->
+    <section class="card">
+      <div class="card-pad">
+        <div class="kicker">Jenama</div>
+        <h2 class="h2">Urus Jenama</h2>
+        <div class="row">
+          <input id="brand_name" class="input" placeholder="Nama jenama (cth Proton)">
+          <button class="btn" onclick="addBrand()">Tambah Jenama</button>
+        </div>
+        <div class="sep"></div>
+        <div id="brandList" class="grid grid-2"></div>
+      </div>
+    </section>
+
+    <!-- ====== Tambah Ejen ====== -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Ejen</div>
@@ -35,6 +71,7 @@
       </div>
     </section>
 
+    <!-- ====== Rekod Jualan & Portal ====== -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Jualan</div>
@@ -57,28 +94,50 @@
       </div>
     </section>
 
+    <!-- ====== Listings: Tambah & Terbit ====== -->
     <section class="card">
       <div class="card-pad">
-        <div class="kicker">Rebate</div>
-        <h2 class="h2">Topup / Redeem Manual</h2>
+        <div class="kicker">Inventori</div>
+        <h2 class="h2">Tambah Listing Kereta</h2>
         <div class="grid grid-2">
-          <input id="r_sale" class="input" placeholder="Sale ID (SL-...)">
-          <input id="r_phone" class="input" placeholder="Telefon pelanggan">
-          <input id="r_amt" class="input" placeholder="Amaun (RM)">
-          <input id="r_note" class="input" placeholder="Nota">
+          <input id="l_brand" class="input" placeholder="Jenama">
+          <input id="l_model" class="input" placeholder="Model">
+          <input id="l_variant" class="input" placeholder="Variant">
+          <input id="l_price" class="input" placeholder="Harga (RM)">
+          <input id="l_images" type="file" class="input" multiple accept=".jpg,.jpeg,.png,.webp">
+          <select id="l_status" class="select"><option value="draft">draft</option><option value="active">active</option></select>
         </div>
         <div class="row" style="margin-top:8px">
-          <button class="btn" onclick="rebateTopup()">Topup</button>
-          <button class="btn btn-ghost" onclick="rebateRedeem()">Redeem</button>
+          <button class="btn" onclick="addListing()">Tambah Listing</button>
         </div>
-        <div id="rebateResult" class="notice" style="margin-top:8px"></div>
+        <div class="sep"></div>
+        <div class="grid grid-2">
+          <input id="pub_id" class="input" placeholder="Listing ID (L-...)">
+          <select id="pub_status" class="select"><option value="active">active</option><option value="draft">draft</option><option value="archived">archived</option></select>
+          <button class="btn" onclick="publishListing()">Ubah Status</button>
+        </div>
+        <div id="listResult" class="notice" style="margin-top:8px"></div>
       </div>
     </section>
 
+    <!-- ====== Dashboard Jualan ====== -->
+    <section class="card" style="grid-column:1/-1">
+      <div class="card-pad">
+        <div class="kicker">Dashboard</div>
+        <h2 class="h2">Ringkasan Jualan & Rebate</h2>
+        <button class="btn" onclick="loadSummary()">Muatkan Ringkasan</button>
+        <div class="sep"></div>
+        <div id="sumTotals" class="row"></div>
+        <div class="sep"></div>
+        <div id="sumTable"></div>
+      </div>
+    </section>
+
+    <!-- ====== Roadtax ====== -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Roadtax/Insurans</div>
-        <h2 class="h2">Kira Sebut Harga & Upload Cover Note</h2>
+        <h2 class="h2">Sebut Harga & Cover Note</h2>
         <div class="grid grid-2">
           <input id="rt_id" class="input" placeholder="Roadtax Request ID (RT-...)">
           <input id="rt_quote" class="input" placeholder="Quote (RM)">
@@ -94,6 +153,7 @@
       </div>
     </section>
 
+    <!-- ====== Booking status ====== -->
     <section class="card">
       <div class="card-pad">
         <div class="kicker">Servis</div>
@@ -111,6 +171,7 @@
         <div id="bkResult" class="notice" style="margin-top:8px"></div>
       </div>
     </section>
+
   </main>
 
   <footer class="container footer">© <span id="year"></span> CarHub Johor</footer>
@@ -118,7 +179,7 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Google Sign-In
+    // ===== Auth UI =====
     window.onload = () => {
       const box = document.getElementById('authBox');
       if(localStorage.getItem('id_token')){
@@ -129,16 +190,63 @@
         google.accounts.id.initialize({ client_id: CLIENT_ID, callback:onSignIn });
         google.accounts.id.renderButton(document.querySelector('.g_id_signin'), { theme:'outline', size:'large' });
       }
+      preloadConfig();
+      loadBrands();
     };
-    function onSignIn(res){
-      if(res && res.credential){
-        localStorage.setItem('id_token', res.credential);
-        location.reload();
-      }
-    }
+    function onSignIn(res){ if(res && res.credential){ localStorage.setItem('id_token', res.credential); location.reload(); } }
     function signOut(){ localStorage.removeItem('id_token'); location.reload(); }
 
-    // Admin actions
+    // ===== CMS =====
+    async function preloadConfig(){
+      const r = await apiGet('config', {});
+      if(!r.ok) return;
+      const c=r.data;
+      cfg_brand.value = c.brand_name || '';
+      cfg_wa.value = c.default_whatsapp || '';
+      cfg_hero.value = c.hero_title || '';
+      cfg_points.value = (c.hero_points||[]).join(';');
+    }
+    async function saveConfig(){
+      const payload = {
+        brand_name: cfg_brand.value,
+        default_whatsapp: cfg_wa.value,
+        hero_title: cfg_hero.value,
+        hero_points: cfg_points.value
+      };
+      const r = await apiPost('set_config', payload, true);
+      cfgResult.textContent = r.ok ? 'Seting disimpan.' : (r.error||'Gagal');
+    }
+    async function uploadLogo(){
+      const f = logo_file.files[0]; if(!f){ alert('Pilih logo'); return; }
+      const b64 = await toBase64(f);
+      const r = await apiPost('upload_logo', { base64: b64 }, true);
+      cfgResult.textContent = r.ok ? 'Logo dikemas kini.' : (r.error||'Gagal');
+    }
+
+    // ===== Brands =====
+    async function loadBrands(){
+      const r = await apiGet('brands', {});
+      if(!r.ok) return;
+      brandList.innerHTML = (r.data||[]).map(b=>{
+        const badge = b.status==='active' ? 'badge' : 'badge btn-ghost';
+        const to = b.status==='active' ? 'inactive' : 'active';
+        return `<div class="card"><div class="card-pad row" style="justify-content:space-between">
+          <div><span class="${badge}">${b.name}</span> <span class="mono">${b.id}</span></div>
+          <button class="btn btn-ghost" onclick="toggleBrand('${b.id}','${to}')">${to}</button>
+        </div></div>`;
+      }).join('');
+    }
+    async function addBrand(){
+      const name = brand_name.value.trim(); if(!name){ alert('Masukkan nama jenama'); return; }
+      const r = await apiPost('add_brand', { name }, true);
+      if(r.ok){ brand_name.value=''; loadBrands(); } else alert(r.error||'Gagal');
+    }
+    async function toggleBrand(id, status){
+      const r = await apiPost('set_brand_status', { id, status }, true);
+      if(r.ok) loadBrands(); else alert(r.error||'Gagal');
+    }
+
+    // ===== Sellers =====
     async function addSeller(){
       const payload = {
         name:s_name.value,email:s_email.value,phone:s_phone.value,
@@ -150,6 +258,8 @@
 Public URL: ${r.data.public_url}
 Portal URL: ${r.data.portal_url}` : (r.error||'Gagal');
     }
+
+    // ===== Sales & Portal =====
     async function createSale(){
       const payload={
         customer_name:c_name.value, customer_phone:c_phone.value,
@@ -160,16 +270,50 @@ Portal URL: ${r.data.portal_url}` : (r.error||'Gagal');
       const r=await apiPost('create_sale', payload, true);
       saleResult.textContent = r.ok ? `Sale ID ${r.data.sale_id} • Portal: ${r.data.portal_url}` : (r.error||'Gagal');
     }
-    async function rebateTopup(){
-      const payload={ sale_id:r_sale.value, customer_phone:r_phone.value, amount:r_amt.value, channel:'other', note:r_note.value };
-      const r=await apiPost('rebate_topup', payload, true);
-      rebateResult.textContent = r.ok ? `Baki terkini: RM ${r.data.balance}` : (r.error||'Gagal');
+
+    // ===== Listings =====
+    async function addListing(){
+      const files = Array.from(l_images.files||[]);
+      const imgs = await Promise.all(files.map(toBase64));
+      const payload = {
+        brand: l_brand.value, model: l_model.value, variant: l_variant.value,
+        price: l_price.value, base64_images: imgs, status: l_status.value
+      };
+      const r=await apiPost('add_listing', payload, true);
+      listResult.textContent = r.ok ? `Listing ditambah. ID ${r.data.id}` : (r.error||'Gagal');
     }
-    async function rebateRedeem(){
-      const payload={ sale_id:r_sale.value, amount:r_amt.value, channel:'service', note:r_note.value };
-      const r=await apiPost('rebate_redeem', payload, true);
-      rebateResult.textContent = r.ok ? `Digunakan: RM ${r.data.used} • Baki: RM ${r.data.balance}` : (r.error||'Gagal');
+    async function publishListing(){
+      const r=await apiPost('set_listing_status', { id: pub_id.value, status: pub_status.value }, true);
+      listResult.textContent = r.ok ? `Status listing ${r.data.id}: ${r.data.status}` : (r.error||'Gagal');
     }
+
+    // ===== Dashboard =====
+    async function loadSummary(){
+      const r=await apiPost('sales_summary', {}, true);
+      if(!r.ok){ sumTotals.textContent='Gagal muat ringkasan'; return; }
+      const t=r.data.totals;
+      sumTotals.innerHTML = `
+        <div class="badge">Jumlah jualan: ${t.sales}</div>
+        <div class="badge">Jumlah OTR: ${fmtRM(t.otr)}</div>
+        <div class="badge">Rebate awal diberi: ${fmtRM(t.rebate_initial)}</div>
+        <div class="badge">Redeem: ${fmtRM(t.redeem)}</div>
+        <div class="badge">Topup/Adjust: ${fmtRM(t.topup_adjust)}</div>
+      `;
+      const rows = r.data.by_seller||[];
+      sumTable.innerHTML = `
+        <div class="grid grid-2">
+          ${rows.map(x=>`
+            <div class="card"><div class="card-pad">
+              <div class="h2" style="font-size:18px">Seller: ${x.seller_id}</div>
+              <div class="row"><span class="badge">Sales: ${x.sales}</span><span class="badge">OTR: ${fmtRM(x.otr)}</span></div>
+              <div class="row"><span class="badge">Rebate Awal: ${fmtRM(x.rebate_initial)}</span><span class="badge">Redeem: ${fmtRM(x.redeem)}</span></div>
+              <div class="row"><span class="badge">Topup/Adjust: ${fmtRM(x.topup_adjust)}</span></div>
+            </div></div>
+          `).join('')}
+        </div>`;
+    }
+
+    // ===== Roadtax =====
     async function setQuote(){
       const r=await apiPost('set_roadtax_quote', { id:rt_id.value, amount:rt_quote.value }, true);
       rtResult.textContent = r.ok ? `Quote ditetapkan: RM ${r.data.quote_amount}` : (r.error||'Gagal');
@@ -180,10 +324,13 @@ Portal URL: ${r.data.portal_url}` : (r.error||'Gagal');
       const r=await apiPost('upload_cover_note', { id:rt_id2.value, base64:b64 }, true);
       rtResult.textContent = r.ok ? `Upload berjaya: ${r.data.cover_note_url}` : (r.error||'Gagal');
     }
+
+    // ===== Booking =====
     async function updateBooking(){
       const r=await apiPost('update_booking_status', { id:bk_id.value, status:bk_status.value, notes:bk_notes.value }, true);
       bkResult.textContent = r.ok ? `Status: ${r.data.status}` : (r.error||'Gagal');
     }
+
     function toBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(file); }); }
   </script>
 </body>
